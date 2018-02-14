@@ -1,0 +1,6 @@
+{
+  "presets": [
+    "@vue/app"
+  ],
+  "plugins": ["@babel/plugin-proposal-decorators"]
+}

@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "precommit": "npm run lint -- --no-fix",
     "test": "vue-cli-service test ./src/**/*.spec.js --include ./test/unit/index.js",
     "test:watch": "npm run test -- --watch",
     "lint": "vue-cli-service lint"
@@ -28,6 +29,7 @@
     "axios-mock-adapter": "1.13.1",
     "chai": "4.1.2",
     "flush-promises": "1.0.0",
+    "husky": "0.14.3",
     "node-sass": "4.7.2",
     "sass-loader": "6.0.6",
     "sinon": "4.3.0",

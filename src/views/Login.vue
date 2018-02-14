@@ -44,6 +44,7 @@ export default class LoginView extends Vue {
           this.$router.push({ name: 'welcome' });
         })
         .catch(({ response }) => {
+          this.password = '';
           this.validationError = response.data.error.message;
         });
     }

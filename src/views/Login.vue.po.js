@@ -1,26 +1,25 @@
-export default class LoginViewPageObj {
-  constructor (element) {
-    this.element = element;
-  }
+import BasePageObj from '@unit/base.po';
+import MyButttonPageObj from '@/components/MyButton.vue.po';
 
+export default class LoginViewPageObj extends BasePageObj {
   get form () {
-    return this.element.tid('login__form');
+    return this.tid('login__form');
   }
 
   get usernameInput () {
-    return this.element.tid('login__username');
+    return this.tid('login__username');
   }
 
   get passwordInput () {
-    return this.element.tid('login__password');
+    return this.tid('login__password');
   }
 
   get submitButton () {
-    return this.element.tid('login__submit-button');
+    return new MyButttonPageObj(this.tid('login__submit-button'));
   }
 
   get validationError () {
-    return this.element.tid('login__validation-error');
+    return this.tid('login__validation-error');
   }
 
   submit () {

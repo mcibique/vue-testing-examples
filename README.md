@@ -13,8 +13,13 @@ To document:
 1. Mocking service in action (inject-loader)
 1. Mocking service in vue component (vue-loader?inject)
 1. Adding page objects
-1. Using custom selectors in page objects
+1. Using custom selectors in page objects (tids)
 
 Provide examples for
 * ??? mock-vuex module ???
 * ??? delete require.cache ???
+* ??? how shallow vs mount would help in test ???
+* ??? testing mutations, actions ???
+
+Issues:
+* !!! trigger("click") on <button type="submit"> doesn't trigger submit on form. !!!

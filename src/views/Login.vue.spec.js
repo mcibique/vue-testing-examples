@@ -107,6 +107,10 @@ describe('Login view', function () {
         expect(this.loginView.validationError.exists(), 'Validation error should be visible').to.be.true;
         expect(this.loginView.validationError.text(), 'Validation error should display error message from API').to.equal(this.expectedErrorMessage);
       });
+
+      it('should reset password input back to initial value', function () {
+        expect(this.loginView.passwordInput.element.value, 'Password wasn\'t reset back to initial value').to.equal('');
+      });
     });
   });
 });

@@ -1,20 +1,20 @@
 # vue-testing-examples
 
 To document:
-#. Testing dumb component
-#. Testing smart component
-#. Testing v-model
-#. Testing navigation guards
-#. Mocking vuex
-#. Mocking router
-#. Mocking axios
-#. Assert `console.error()`
-#. Assert axios expectations left overs
-#. Mocking service in action (inject-loader)
-#. Mocking service in vue component (vue-loader?inject)
-#. Adding page objects
-#. Using custom selectors in page objects
+1. Testing dumb component
+1. Testing smart component
+1. Testing v-model
+1. Testing navigation guards
+1. Mocking vuex
+1. Mocking router
+1. Mocking axios
+1. Assert `console.error()`
+1. Assert axios expectations left overs
+1. Mocking service in action (inject-loader)
+1. Mocking service in vue component (vue-loader?inject)
+1. Adding page objects
+1. Using custom selectors in page objects
 
-Provide examples?
-??? mock-vuex module ???
-??? delete require.cache ???
+Provide examples for
+* ??? mock-vuex module ???
+* ??? delete require.cache ???

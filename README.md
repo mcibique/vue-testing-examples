@@ -22,4 +22,4 @@ Provide examples for
 * ??? testing mutations, actions ???
 
 Issues:
-* !!! trigger("click") on <button type="submit"> doesn't trigger submit on form. !!!
+* !!! `trigger("click")` on `<button type="submit">` doesn't trigger submit on form. !!!

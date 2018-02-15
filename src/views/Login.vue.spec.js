@@ -75,6 +75,8 @@ describe('Login view', function () {
         let password = 'test_password';
         this.axios.onPost('/api/login', { username, password }).replyOnce(200, 'random_token');
 
+        this.router.push = this.routerPushStub = sinon.stub(); // router.push must be mocked because next route uses async component
+
         this.loginView = this.mountLoginView();
         this.loginView.login(username, password);
 
@@ -86,7 +88,7 @@ describe('Login view', function () {
       });
 
       it('should take user to the welcome page', function () {
-        expect(this.router.currentRoute.name).to.equal('welcome');
+        expect(this.routerPushStub).to.have.been.calledWith({ name: 'welcome' });
       });
     });
 
@@ -111,6 +113,23 @@ describe('Login view', function () {
       it('should reset password input back to initial value', function () {
         expect(this.loginView.passwordInput.element.value, 'Password wasn\'t reset back to initial value').to.equal('');
       });
+    });
+  });
+
+  // impossible to trigger beforeRouteEnter by pushing { name: 'login' } route.
+  describe.skip('before login is displayed to the user', function () {
+    beforeEach(function () {
+      this.router.push({ name: 'about' });
+
+      this.store.commit('auth/SET_TOKEN', 'random_token');
+      this.mountLoginView();
+
+      this.router.push({ name: 'login' });
+      return flushPromises();
+    });
+
+    it('should reset auth token in the store', function () {
+      expect(this.store.state.auth.token).to.equal('');
     });
   });
 });

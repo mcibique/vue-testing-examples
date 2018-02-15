@@ -20,6 +20,7 @@ Provide examples for
 * ??? delete require.cache ???
 * ??? how shallow vs mount would help in test ???
 * ??? testing mutations, actions ???
+* ??? testing `router.push()` to the route with async component using `import()` ???
 
 Issues:
 * !!! `trigger("click")` on `<button type="submit">` doesn't trigger submit on form. !!!

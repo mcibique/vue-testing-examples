@@ -22,36 +22,42 @@ import MyButton from '@/components/MyButton';
   components: { MyButton }
 })
 export default class LoginView extends Vue {
-    password = '';
-    username = '';
-    validationError = null;
+  password = '';
+  username = '';
+  validationError = null;
 
-    onLoginSubmit () {
-      this.validationError = '';
+  onLoginSubmit () {
+    this.validationError = '';
 
-      if (!this.username) {
-        this.validationError = 'Please enter your username';
-        return;
-      }
-
-      if (!this.password) {
-        this.validationError = 'Please enter your password';
-        return;
-      }
-
-      this.login(this.username, this.password)
-        .then(() => {
-          this.$router.push({ name: 'welcome' });
-        })
-        .catch(({ response }) => {
-          this.password = '';
-          this.validationError = response.data.error.message;
-        });
+    if (!this.username) {
+      this.validationError = 'Please enter your username';
+      return;
     }
 
-    login (username, password) {
-      return this.$store.dispatch('auth/login', { username, password });
+    if (!this.password) {
+      this.validationError = 'Please enter your password';
+      return;
     }
+
+    this.login(this.username, this.password)
+      .then(() => {
+        this.$router.push({ name: 'welcome' });
+      })
+      .catch(({ response }) => {
+        this.password = '';
+        this.validationError = response.data.error.message;
+      });
+  }
+
+  login (username, password) {
+    return this.$store.dispatch('auth/login', { username, password });
+  }
+
+  beforeRouteEnter (to, from, next) {
+    next(function (vm) {
+      vm.$store.commit('auth/RESET_TOKEN');
+    });
+    console.log('beforeRouteEnter');
+  }
 }
-
 </script>

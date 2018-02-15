@@ -14,6 +14,9 @@ let auth = {
     }
   },
   mutations: {
+    'RESET_TOKEN' (state) {
+      state.token = null;
+    },
     'SET_TOKEN' (state, token) {
       state.token = token;
     }

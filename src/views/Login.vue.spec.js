@@ -116,7 +116,7 @@ describe('Login view', function () {
     });
   });
 
-  // impossible to trigger beforeRouteEnter by pushing { name: 'login' } route.
+  // impossible to trigger callback in next(cb) by pushing { name: 'login' } route.
   describe.skip('before login is displayed to the user', function () {
     beforeEach(function () {
       this.router.push({ name: 'about' });
@@ -129,7 +129,7 @@ describe('Login view', function () {
     });
 
     it('should reset auth token in the store', function () {
-      expect(this.store.state.auth.token).to.equal('');
+      expect(this.store.state.auth.token).to.equal(null);
     });
   });
 });

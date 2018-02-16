@@ -1,32 +1,120 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/login">Login</router-link> |
+  <div id="app" class="c-app">
+    <header class="c-app__header">
+      <router-link to="/logout" v-if="isAuthenticated">Logout</router-link>
+    </header>
+    <main class="c-app__main">
+      <router-view></router-view>
+    </main>
+    <footer class="c-app__footer">
       <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+    </footer>
   </div>
 </template>
 
+<script>
+import { Component } from 'vue-property-decorator';
+import { Getter } from 'vuex-class';
+
+  @Component
+export default class App {
+    @Getter('auth/isAuthenticated') isAuthenticated;
+  }
+</script>
+
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 10px;
+  font-family: Segoe UI, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  color: #333;
+  background-color: #fff;
 }
 
-#nav {
-  padding: 30px;
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  min-width: 320px;
+  font-size: 1.6rem;
 }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
+input {
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  padding: 0.9rem;
+  line-height: 2rem;
+  color: inherit;
+  font-size: 1.4rem;
+  width: 100%;
 }
 
-#nav a.router-link-exact-active {
-  color: #42b983;
+label {
+  display: block;
+  line-height: 2rem;
+  font-weight: bolder;
+}
+
+label + input {
+  margin-top: .5rem;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: #333;
+}
+
+a:link,
+a:visited,
+a:hover,
+a:active {
+  color: rgb(2, 116, 169);
+  text-decoration: underline;
+}
+
+a:hover,
+a:active {
+  color: rgba(2, 116, 169, 0.75);
+}
+
+pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.c-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.c-app__header {
+  background-color: #eee;
+  padding: 2rem 4rem;
+  text-align: right;
+  min-height: 6rem;
+  line-height: 2rem;
+}
+
+.c-app__main {
+  flex-grow: 1;
+  flex-basis: 100%;
+  padding: 2rem;
+}
+
+.c-app__footer {
+  padding: 2rem 4rem;
+  border-top: 1px solid #ccc;
+  background-color: #fafafa;
 }
 </style>

@@ -54,6 +54,16 @@ describe('MyButton component', function () {
     expect(attributes['data-random-attr']).to.equal('random-attr-value');
   });
 
+  it('should merge class attribute with its own classes', function () {
+    let myButton = this.mountMyButton({
+      context: {
+        staticClass: 'random-class'
+      }
+    });
+
+    expect(myButton.wrapper.classes()).to.deep.equal(['random-class', 'c-button']);
+  });
+
   it('should call on click handler', function () {
     let clickHandler = sinon.stub();
     let myButton = this.mountMyButton({

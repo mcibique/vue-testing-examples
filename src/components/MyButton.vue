@@ -1,26 +1,27 @@
 <template functional>
-  <button @click="listeners.click && listeners.click()" class="c-button" :class="{ 'c-button--primary': !!props.primary }" v-bind="data.attrs"><slot></slot></button>
+  <button @click="listeners.click && listeners.click()" :class="[data.staticClass, 'c-button', { 'c-button--primary': !!props.primary }]" v-bind="data.attrs"><slot></slot></button>
 </template>
 
 <style>
   .c-button {
     background: #fff;
-    padding: 5px 15px;
-    line-height: 20px;
+    padding: 0.9rem 2rem;
+    line-height: 2rem;
     border: 1px solid #d2d2d2;
     border-radius: 2px;
     cursor: pointer;
+    font-weight: bold;
   }
 
   .c-button--primary {
-    background: #0274a9;
+    background: rgb(2, 116, 169);
     color: #efefef;
   }
 
   .c-button--primary:hover,
   .c-button--primary:active,
   .c-button--primary:focus {
-    background: #0274d9;
+    background: rgba(2, 116, 169, 0.9);
     color: #efefef;
   }
 </style>

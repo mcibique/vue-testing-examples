@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import auth from './store.auth';
-import cloneDeep from 'lodash/cloneDeep';
+import createAuthModule from './store.auth';
 
 export function createStore (vueInstance = Vue) {
   vueInstance.use(Vuex);
@@ -10,10 +9,9 @@ export function createStore (vueInstance = Vue) {
     namespaced: true,
     strict: process.env.NODE_ENV !== 'production',
     modules: {
-      auth: {
-        ...auth,
-        state: cloneDeep(auth.state)
-      }
+      auth: createAuthModule()
     }
   });
 }
+
+export default createStore(Vue);

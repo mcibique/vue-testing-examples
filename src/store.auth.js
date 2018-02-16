@@ -1,29 +1,36 @@
-import axios from 'axios';
+import cloneDeep from 'lodash/cloneDeep';
 
-let auth = {
-  namespaced: true,
-  state: {
-    token: null
-  },
-  actions: {
-    async login ({ commit }, { username, password }) {
-      let token = await axios.post('/api/login', { username, password }).then(({ data }) => data);
-      // let token = await Promise.resolve(`${username}:${password}`);
-      commit('SET_TOKEN', token);
-      return token;
-    }
-  },
-  mutations: {
-    'RESET_TOKEN' (state) {
-      state.token = null;
+import AuthService from '@/services/auth';
+
+export default function createModule () {
+  return {
+    namespaced: true,
+    state: cloneDeep({
+      token: null
+    }),
+    actions: {
+      async login ({ commit }, { username, password }) {
+        let authService = new AuthService();
+        let token = await authService.login(username, password);
+        commit('SET_TOKEN', token);
+        return token;
+      },
+      async logout ({ commit }) {
+        let authService = new AuthService();
+        await authService.logout();
+        commit('RESET_TOKEN');
+      }
     },
-    'SET_TOKEN' (state, token) {
-      state.token = token;
+    mutations: {
+      'RESET_TOKEN' (state) {
+        state.token = null;
+      },
+      'SET_TOKEN' (state, token) {
+        state.token = token;
+      }
+    },
+    getters: {
+      isAuthenticated: (state) => !!state.token
     }
-  },
-  getters: {
-    isAuthenticated: (state) => !!state.token
-  }
-};
-
-export default auth;
+  };
+}

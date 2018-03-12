@@ -3,8 +3,10 @@
 To document:
 1. Testing dumb component
 1. Testing smart component
+1. Testing functional component
 1. Testing v-model
 1. Testing navigation guards
+1. Testing filter
 1. Mocking vuex
 1. Mocking router
 1. Mocking axios
@@ -15,9 +17,11 @@ To document:
 1. Inversify and mocking router/store in tests
 1. lolex example with time forwarding
 
+Introduce the dev stack:
+* vue, vuex, vue-router, vue-property-decorator, vuex-class, axios, lodash, inversify (vanilla js solution), sinon, mocha, sinon-chai, sinon-stub-promise flush-promises, lolex
+
 Provide examples for
-* ??? mock-vuex module ???
-* ??? delete require.cache ???
+* ??? using stub services while running the app ???
 * ??? how shallow vs mount would help in test ???
 * ??? testing mutations, actions ???
 * ??? testing `router.push()` to the route with async component using `import()` ???

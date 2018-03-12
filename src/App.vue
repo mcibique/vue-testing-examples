@@ -16,10 +16,10 @@
 import { Component } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 
-  @Component
+@Component
 export default class App {
-    @Getter('auth/isAuthenticated') isAuthenticated;
-  }
+  @Getter('auth/isAuthenticated') isAuthenticated;
+}
 </script>
 
 <style>

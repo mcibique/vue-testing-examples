@@ -1,11 +1,12 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import store from './store';
+import container from '@di';
+import { STORE_ID } from './store'
 import Login from './views/Login.vue';
 import About from './views/About.vue';
 
-export function createRouter (vueInstance = Vue) {
+export function createRouter (vueInstance = Vue, store = container.get(STORE_ID)) {
   vueInstance.use(VueRouter);
 
   let router = new VueRouter({
@@ -62,3 +63,5 @@ export function createRouter (vueInstance = Vue) {
 
   return router;
 }
+
+export const ROUTER_ID = Symbol('router');

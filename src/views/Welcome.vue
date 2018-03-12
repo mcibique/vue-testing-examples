@@ -1,16 +1,17 @@
 <template>
-  <div>
+  <section>
     <h1 v-if="profile">Welcome {{ profile.firstName }}!</h1>
     <profile :profile="profile"></profile>
-  </div>
+  </section>
 </template>
 
 <script>
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 
+import { LazyInject } from '@di';
 import Profile from '@/components/Profile';
-import ProfileService from '@/services/profile';
+import { PROFILE_SERVICE_ID } from '@/services/profile';
 
 @Component({
   components: { Profile }
@@ -18,11 +19,10 @@ import ProfileService from '@/services/profile';
 export default class WelcomeView extends Vue {
   profile = null;
 
-  beforeRouteEnter (to, from, next) {
-    let profileService = new ProfileService();
-    profileService.getProfile().then(function (profile) {
-      next(vm => { vm.profile = profile; });
-    });
+  @LazyInject(PROFILE_SERVICE_ID) profileService;
+
+  async created () {
+    this.profile = await this.profileService.getProfile();
   }
 }
 </script>

@@ -1,6 +1,7 @@
 <template>
-  <div class="c-login">
+  <section class="c-login">
     <form autocomplete="off" novalidate class="c-login__form" @submit.prevent="onLoginSubmit()" tid="login__form">
+      <h1 class="c-login__header">Login</h1>
       <p v-if="this.validationError" class="c-login__validation_error" tid="login__validation-error">{{ this.validationError }}</p>
 
       <div class="c-login__row">
@@ -14,7 +15,7 @@
 
       <my-button type="submit" class="c-login__submit-button" tid="login__submit-button" :primary="true">Log in</my-button>
     </form>
-  </div>
+  </section>
 </template>
 
 <script>
@@ -72,6 +73,14 @@ export default class LoginView extends Vue {
     align-items: center;
     justify-content: center;
     min-height: 100%;
+  }
+
+  .c-login__header {
+    font-size: 3.2rem;
+    line-height: 4rem;
+    margin: 0;
+    margin-bottom: 2rem;
+    text-align: center;
   }
 
   .c-login__validation_error {

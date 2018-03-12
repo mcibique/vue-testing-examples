@@ -14,4 +14,4 @@ export function createStore (vueInstance = Vue) {
   });
 }
 
-export default createStore(Vue);
+export const STORE_ID = Symbol('store');

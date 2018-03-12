@@ -1,8 +1,12 @@
 import axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';
+import { Override } from '@di';
 
-import AuthService from './auth.js'; // always use '.js' extension otherwise this module will required.
+import AuthService, { AUTH_SERVICE_ID } from './auth.js'; // always use '.js' extension otherwise this module will required.
 
+export { AUTH_SERVICE_ID };
+
+@Override(AUTH_SERVICE_ID)
 export default class AuthStubService extends AuthService {
   login (username, password) {
     let axiosMock = new AxiosMockAdapter(axios);

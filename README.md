@@ -10,10 +10,10 @@ To document:
 1. Mocking axios
 1. Assert `console.error()`
 1. Assert axios expectations left overs
-1. Mocking service in action (inject-loader)
-1. Mocking service in vue component (vue-loader?inject)
 1. Adding page objects
 1. Using custom selectors in page objects (tids)
+1. Inversify and mocking router/store in tests
+1. lolex example with time forwarding
 
 Provide examples for
 * ??? mock-vuex module ???

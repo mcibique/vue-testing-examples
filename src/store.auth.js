@@ -1,6 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep';
 
-import AuthService from '@/services/auth';
+import container from '@di';
+import { AUTH_SERVICE_ID } from '@/services/auth';
 
 export default function createModule () {
   return {
@@ -10,13 +11,13 @@ export default function createModule () {
     }),
     actions: {
       async login ({ commit }, { username, password }) {
-        let authService = new AuthService();
+        let authService = container.get(AUTH_SERVICE_ID);
         let token = await authService.login(username, password);
         commit('SET_TOKEN', token);
         return token;
       },
       async logout ({ commit }) {
-        let authService = new AuthService();
+        let authService = container.get(AUTH_SERVICE_ID);
         await authService.logout();
         commit('RESET_TOKEN');
       }

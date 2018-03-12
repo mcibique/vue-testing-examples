@@ -5,18 +5,26 @@ import axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';
 import flushPromises from 'flush-promises';
 
+import container from "@di";
 import LoginView from '@/views/Login.vue';
 import LoginViewPageObj from '@/views/Login.vue.po';
-import { createStore } from '@/store';
-import { createRouter } from '@/router';
+import { createStore, STORE_ID } from '@/store';
+import { createRouter, ROUTER_ID } from '@/router';
 
 describe('Login view', function () {
   beforeEach(function () {
+    container.snapshot();
+
     this.axios = new AxiosMockAdapter(axios);
 
     this.localVue = createLocalVue();
-    this.router = createRouter(this.localVue);
     this.store = createStore(this.localVue);
+    container.bind(STORE_ID).toConstantValue(this.store);
+
+    this.router = createRouter(this.localVue);
+    container.bind(ROUTER_ID).toConstantValue(this.router);
+
+    this.router.push({ name: 'login' });
 
     this.mountLoginView = function (options) {
       let wrapper = mount(LoginView, { localVue: this.localVue, router: this.router, store: this.store, ...options });
@@ -25,6 +33,8 @@ describe('Login view', function () {
   });
 
   afterEach(function () {
+    container.restore();
+
     this.axios.verifyNoOutstandingExpectation();
     this.axios.reset();
   });

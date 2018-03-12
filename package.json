@@ -40,6 +40,7 @@
     "sass-loader": "6.0.6",
     "sinon": "4.3.0",
     "sinon-chai": "2.14.0",
+    "sinon-stub-promise": "4.0.0",
     "vue-template-compiler": "2.5.13"
   },
   "browserslist": [

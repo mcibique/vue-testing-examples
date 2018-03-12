@@ -1,5 +1,5 @@
 import BasePageObj from '@unit/base.po';
-import MyButttonPageObj from '@/components/MyButton.vue.po';
+import MyButtonPageObj from '@/components/MyButton.vue.po';
 
 export default class LoginViewPageObj extends BasePageObj {
   get form () {
@@ -15,7 +15,7 @@ export default class LoginViewPageObj extends BasePageObj {
   }
 
   get submitButton () {
-    return new MyButttonPageObj(this.tid('login__submit-button'));
+    return new MyButtonPageObj(this.tid('login__submit-button'));
   }
 
   get validationError () {

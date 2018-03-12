@@ -3,11 +3,11 @@ import axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';
 
 import container from '@di';
-import { PROFILE_SERVICE_ID } from './profile';
+import { EMAIL_SERVICE_ID } from './email';
 
-describe('Profile service', function () {
+describe('Email service', function () {
   beforeEach(function () {
-    this.profileService = container.get(PROFILE_SERVICE_ID);
+    this.emailService = container.get(EMAIL_SERVICE_ID);
     this.axios = new AxiosMockAdapter(axios);
   });
 
@@ -17,16 +17,14 @@ describe('Profile service', function () {
   });
 
   it('should exists', function() {
-    expect(this.profileService).to.be.ok;
+    expect(this.emailService).to.be.ok;
   });
 
-  describe('getProfile()', function() {
+  describe('getEmails()', function() {
     it('should call external API', function() {
-      let fakeData = {
-        username: 'fake_username',
-      };
-      this.axios.onGet('/api/profile').replyOnce(200, fakeData);
-      return this.profileService.getProfile().then(function(response) {
+      let fakeData = [{ id: 1, subject: 'Random subject' }];
+      this.axios.onGet('/api/emails').replyOnce(200, fakeData);
+      return this.emailService.getEmails().then(function(response) {
         expect(response).to.deep.equal(fakeData);
       });
     });

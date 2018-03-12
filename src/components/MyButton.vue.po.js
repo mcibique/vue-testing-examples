@@ -1,6 +1,6 @@
 import BasePageObj from '@unit/base.po';
 
-export default class MyButttonPageObj extends BasePageObj {
+export default class MyButtonPageObj extends BasePageObj {
   click () {
     return this.wrapper.trigger('click');
   }

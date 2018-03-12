@@ -5,7 +5,7 @@ import AxiosMockAdapter from 'axios-mock-adapter';
 import container from '@di';
 import { AUTH_SERVICE_ID } from './auth';
 
-describe.only('Auth service', function () {
+describe('Auth service', function () {
   beforeEach(function () {
     this.authService = container.get(AUTH_SERVICE_ID);
     this.axios = new AxiosMockAdapter(axios);

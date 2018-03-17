@@ -20,12 +20,12 @@ describe('About view', function () {
     this.router = createRouter(this.localVue);
     container.bind(ROUTER_ID).toConstantValue(this.router);
 
-    this.router.push({ name: 'about' });
-
     this.mountAboutView = function (options) {
       let wrapper = mount(AboutView, { localVue: this.localVue, router: this.router, store: this.store, ...options });
       return new AboutViewPageObj(wrapper);
     };
+
+    this.router.push({ name: 'about' });
 
     return flushPromises();
   });

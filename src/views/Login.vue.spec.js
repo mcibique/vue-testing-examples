@@ -24,12 +24,14 @@ describe('Login view', function () {
     this.router = createRouter(this.localVue);
     container.bind(ROUTER_ID).toConstantValue(this.router);
 
-    this.router.push({ name: 'login' });
-
     this.mountLoginView = function (options) {
       let wrapper = mount(LoginView, { localVue: this.localVue, router: this.router, store: this.store, ...options });
       return new LoginViewPageObj(wrapper);
     };
+
+    this.router.push({ name: 'login' });
+
+    return flushPromises();
   });
 
   afterEach(function () {
@@ -37,6 +39,15 @@ describe('Login view', function () {
 
     this.axios.verifyNoOutstandingExpectation();
     this.axios.restore();
+  });
+
+  it('should enter route', function () {
+    expect(this.router.currentRoute.name).to.equal('login');
+  });
+
+  it('should mount without any errors', function () {
+    this.mountLoginView();
+    expect(console.error).not.to.have.been.called;
   });
 
   it('should render properly', function () {

@@ -26,10 +26,6 @@ describe('Welcome view', function () {
     this.router = createRouter(this.localVue);
     container.bind(ROUTER_ID).toConstantValue(this.router);
 
-    // set proper route
-    this.store.commit('auth/SET_TOKEN', 'random_token');
-    this.router.push({ name: 'welcome' });
-
     // profile service
     this.profileService = {
       getProfile: sinon.stub().returnsPromise()
@@ -49,10 +45,25 @@ describe('Welcome view', function () {
       let wrapper = mount(WelcomeView, { localVue: this.localVue, router: this.router, store: this.store, ...options });
       return new WelcomeViewPageObj(wrapper);
     };
+
+    // set proper route
+    this.store.commit('auth/SET_TOKEN', 'random_token');
+    this.router.push({ name: 'welcome' });
+
+    return flushPromises();
   });
 
   afterEach(function () {
     container.restore();
+  });
+
+  it('should enter route', function () {
+    expect(this.router.currentRoute.name).to.equal('welcome');
+  });
+
+  it('should mount without any errors', function () {
+    this.mountWelcomeView();
+    expect(console.error).not.to.have.been.called;
   });
 
   describe('while data have not been resolved yet', function () {

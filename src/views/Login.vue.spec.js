@@ -142,7 +142,7 @@ describe('Login view', function () {
     beforeEach(function () {
       this.router.push({ name: 'about' });
 
-      this.store.commit('auth/SET_TOKEN', 'random_token');
+      this.store.commit('auth/setToken', 'random_token');
       this.mountLoginView();
 
       this.router.push({ name: 'login' });

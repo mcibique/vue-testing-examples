@@ -38,7 +38,7 @@ export default class LoginView extends Vue {
 
   beforeRouteEnter (to, from, next) {
     next(function (vm) {
-      vm.$store.commit('auth/RESET_TOKEN');
+      vm.$store.commit('auth/resetToken');
     });
   }
 

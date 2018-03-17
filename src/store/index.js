@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import createAuthModule from './store.auth';
+
+import createAuthModule from './auth';
 
 export function createStore (vueInstance = Vue) {
   vueInstance.use(Vuex);

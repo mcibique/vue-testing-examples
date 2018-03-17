@@ -47,7 +47,7 @@ describe('Welcome view', function () {
     };
 
     // set proper route
-    this.store.commit('auth/SET_TOKEN', 'random_token');
+    this.store.commit('auth/setToken', 'random_token');
     this.router.push({ name: 'welcome' });
 
     return flushPromises();

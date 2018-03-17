@@ -5,7 +5,7 @@ import axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';
 import flushPromises from 'flush-promises';
 
-import container from "@di";
+import container from '@di';
 import LoginView from '@/views/Login.vue';
 import LoginViewPageObj from '@/views/Login.vue.po';
 import { createStore, STORE_ID } from '@/store';

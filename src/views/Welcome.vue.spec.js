@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import flushPromises from 'flush-promises';
 
-import container from "@di";
+import container from '@di';
 import WelcomeView from '@/views/Welcome.vue';
 import WelcomeViewPageObj from '@/views/Welcome.vue.po';
 import { createStore, STORE_ID } from '@/store';
@@ -55,15 +55,15 @@ describe('Welcome view', function () {
     container.restore();
   });
 
-  describe('while data have not been resolved yet', function() {
-    it('should display loading progress', function() {
+  describe('while data have not been resolved yet', function () {
+    it('should display loading progress', function () {
       this.welcomeView = this.mountWelcomeView();
       expect(this.welcomeView.loading.exists(), 'Should display loading indicator while waiting on data to resolve').to.be.true;
     });
   });
 
-  describe('when all data have been loaded', function() {
-    beforeEach(function() {
+  describe('when all data have been loaded', function () {
+    beforeEach(function () {
       this.randomProfile = { username: 'random_username' };
       this.profileService.getProfile.resolves(this.randomProfile);
 
@@ -77,7 +77,7 @@ describe('Welcome view', function () {
       return flushPromises();
     });
 
-    it('should not display loading anymore', function() {
+    it('should not display loading anymore', function () {
       expect(this.welcomeView.loading.exists(), 'Loading indicator should not be visible').to.be.false;
     });
 
@@ -86,7 +86,7 @@ describe('Welcome view', function () {
       expect(this.welcomeView.header.text(), 'Should display personal text in header').to.equal('Welcome random_username!');
     });
 
-    it('should display emails in dashboard', function() {
+    it('should display emails in dashboard', function () {
       expect(this.welcomeView.dashboard.exists(), 'Should have dashboard visible').to.be.true;
       expect(this.welcomeView.dashboard.emailsSection.exists(), 'Should have emails section visible').to.be.true;
       expect(this.welcomeView.dashboard.emailsSection.header.exists(), 'Should have emails header visible').to.be.true;
@@ -101,13 +101,13 @@ describe('Welcome view', function () {
       });
     });
 
-    describe('when there are no unread emails', function() {
-      beforeEach(function() {
-        this.randomEmails.forEach(email => email.unread = false);
+    describe('when there are no unread emails', function () {
+      beforeEach(function () {
+        this.randomEmails.forEach(email => { email.unread = false; });
         return Vue.nextTick();
       });
 
-      it('should display message in header', function() {
+      it('should display message in header', function () {
         expect(this.welcomeView.dashboard.emailsSection.header.text(), 'Should display message about no emails').to.equal('You have no unread emails');
       });
 
@@ -117,40 +117,40 @@ describe('Welcome view', function () {
     });
   });
 
-  describe('when loading of profile failed with error', function() {
-    beforeEach(function() {
+  describe('when loading of profile failed with error', function () {
+    beforeEach(function () {
       this.profileService.getProfile.rejects({ response: { data: { error: { message: 'Unexpected error while loading the profile' } } } });
 
       this.welcomeView = this.mountWelcomeView();
       return flushPromises();
     });
 
-    it('should display error message', function() {
+    it('should display error message', function () {
       expect(this.welcomeView.loadingError.exists(), 'Should have loading indicator visible').to.be.true;
       expect(this.welcomeView.loadingError.text()).to.equal('An error occurred: Unexpected error while loading the profile');
     });
 
-    it('should not display loading indicator nor dashboard', function() {
+    it('should not display loading indicator nor dashboard', function () {
       expect(this.welcomeView.loading.exists(), 'Should not have loading indicator visible').to.be.false;
       expect(this.welcomeView.header.exists(), 'Should not have header visible').to.be.false;
       expect(this.welcomeView.dashboard.exists(), 'Should not have dashboard visible').to.be.false;
     });
   });
 
-  describe('when loading of emails failed with error', function() {
-    beforeEach(function() {
+  describe('when loading of emails failed with error', function () {
+    beforeEach(function () {
       this.emailService.getEmails.rejects({ response: { data: { error: { message: 'Unexpected error while loading emails' } } } });
 
       this.welcomeView = this.mountWelcomeView();
       return flushPromises();
     });
 
-    it('should display error message', function() {
+    it('should display error message', function () {
       expect(this.welcomeView.loadingError.exists(), 'Should have loading indicator visible').to.be.true;
       expect(this.welcomeView.loadingError.text()).to.equal('An error occurred: Unexpected error while loading emails');
     });
 
-    it('should not display loading indicator nor dashboard', function() {
+    it('should not display loading indicator nor dashboard', function () {
       expect(this.welcomeView.loading.exists(), 'Should not have loading indicator visible').to.be.false;
       expect(this.welcomeView.header.exists(), 'Should not have header visible').to.be.false;
       expect(this.welcomeView.dashboard.exists(), 'Should not have dashboard visible').to.be.false;

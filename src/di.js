@@ -1,6 +1,6 @@
-import { Container } from "inversify";
-import getDecorators from "inversify-inject-decorators";
-import { helpers } from "inversify-vanillajs-helpers";
+import { Container } from 'inversify';
+import getDecorators from 'inversify-inject-decorators';
+import { helpers } from 'inversify-vanillajs-helpers';
 
 let container = new Container();
 let { lazyInject: LazyInject } = getDecorators(container);
@@ -17,14 +17,14 @@ let Override = function (identifier, dependencies, constraint) {
     if (constraint) {
       constraint(binding);
     }
-  }
-}
+  };
+};
 
 export {
   LazyInject,
   Register,
   RegisterConstantValue,
   Override
-}
+};
 
 export default container;

@@ -19,11 +19,11 @@ import { Component, Prop } from 'vue-property-decorator';
 export default class WelcomeView extends Vue {
   @Prop({ type: Array, default: [] }) emails;
 
-  get unreadEmails() {
+  get unreadEmails () {
     return this.emails.filter(e => e.unread);
   }
 
-  get hasUnreadEmails() {
+  get hasUnreadEmails () {
     return this.unreadEmails.length > 0;
   }
 }

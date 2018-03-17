@@ -16,17 +16,17 @@ describe('Profile service', function () {
     this.axios.restore();
   });
 
-  it('should exists', function() {
+  it('should exists', function () {
     expect(this.profileService).to.be.ok;
   });
 
-  describe('getProfile()', function() {
-    it('should call external API', function() {
+  describe('getProfile()', function () {
+    it('should call external API', function () {
       let fakeData = {
-        username: 'fake_username',
+        username: 'fake_username'
       };
       this.axios.onGet('/api/profile').replyOnce(200, fakeData);
-      return this.profileService.getProfile().then(function(response) {
+      return this.profileService.getProfile().then(function (response) {
         expect(response).to.deep.equal(fakeData);
       });
     });

@@ -1,4 +1,4 @@
-export function fullName(profile) {
+export function fullName (profile) {
   if (!profile) {
     return '';
   }

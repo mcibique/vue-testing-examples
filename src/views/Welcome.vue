@@ -36,11 +36,11 @@ export default class WelcomeView extends Vue {
   @LazyInject(PROFILE_SERVICE_ID) profileService;
   @LazyInject(EMAIL_SERVICE_ID) emailService;
 
-  async created() {
+  async created () {
     let [profile, emails] = await Promise.all([this.profileService.getProfile(), this.emailService.getEmails()]).catch(({ response }) => {
       this.loadingError = response.data.error.message;
       return [];
-     });
+    });
     this.profile = profile;
     this.emails = emails;
     this.isLoading = false;

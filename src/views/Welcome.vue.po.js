@@ -2,19 +2,19 @@ import BasePageObj from '@unit/base.po';
 import DashboardPageObj from '@/components/Dashboard.vue.po';
 
 export default class WelcomeViewPageObj extends BasePageObj {
-  get header() {
+  get header () {
     return this.tid('welcome__header');
   }
 
-  get loading() {
+  get loading () {
     return this.tid('welcome__loading');
   }
 
-  get loadingError() {
+  get loadingError () {
     return this.tid('welcome_loading-error');
   }
 
-  get dashboard() {
+  get dashboard () {
     return new DashboardPageObj(this.tid('welcome__dashboard'));
   }
 }

@@ -16,15 +16,15 @@ describe('Email service', function () {
     this.axios.restore();
   });
 
-  it('should exists', function() {
+  it('should exists', function () {
     expect(this.emailService).to.be.ok;
   });
 
-  describe('getEmails()', function() {
-    it('should call external API', function() {
+  describe('getEmails()', function () {
+    it('should call external API', function () {
       let fakeData = [{ id: 1, subject: 'Random subject' }];
       this.axios.onGet('/api/emails').replyOnce(200, fakeData);
-      return this.emailService.getEmails().then(function(response) {
+      return this.emailService.getEmails().then(function (response) {
         expect(response).to.deep.equal(fakeData);
       });
     });

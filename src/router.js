@@ -2,7 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 import container from '@di';
-import { STORE_ID } from './store'
+import { STORE_ID } from './store';
 import Login from './views/Login.vue';
 import About from './views/About.vue';
 

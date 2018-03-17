@@ -16,27 +16,27 @@ describe('Auth service', function () {
     this.axios.restore();
   });
 
-  it('should exists', function() {
+  it('should exists', function () {
     expect(this.authService).to.be.ok;
   });
 
-  describe('login()', function() {
-    it('should call external API with given params', function() {
+  describe('login()', function () {
+    it('should call external API with given params', function () {
       let fakeData = {};
       let username = 'fake_username';
       let password = 'fake_password';
       this.axios.onPost('/api/login', { username, password }).replyOnce(200, fakeData);
-      return this.authService.login(username, password).then(function(response) {
+      return this.authService.login(username, password).then(function (response) {
         expect(response).to.deep.equal(fakeData);
       });
     });
   });
 
-  describe('logout()', function() {
-    it('should call external API', function() {
+  describe('logout()', function () {
+    it('should call external API', function () {
       let fakeData = {};
       this.axios.onPost('/api/logout').replyOnce(200, fakeData);
-      return this.authService.logout().then(function(response) {
+      return this.authService.logout().then(function (response) {
         expect(response).to.deep.equal(fakeData);
       });
     });

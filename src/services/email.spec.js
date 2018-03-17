@@ -13,7 +13,7 @@ describe('Email service', function () {
 
   afterEach(function () {
     this.axios.verifyNoOutstandingExpectation();
-    this.axios.reset();
+    this.axios.restore();
   });
 
   it('should exists', function() {

@@ -36,7 +36,7 @@ describe('Login view', function () {
     container.restore();
 
     this.axios.verifyNoOutstandingExpectation();
-    this.axios.reset();
+    this.axios.restore();
   });
 
   it('should render properly', function () {

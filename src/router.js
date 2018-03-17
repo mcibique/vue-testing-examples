@@ -21,7 +21,7 @@ export function createRouter (vueInstance = Vue, store = container.get(STORE_ID)
         path: '/logout',
         name: 'logout',
         beforeEnter (to, from, next) {
-          store.dispatch('auth/logout').then(function () {
+          store.dispatch('auth/logout').finally(function () {
             next({ name: 'login' });
           });
         }

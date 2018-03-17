@@ -6,7 +6,7 @@
 
       <div class="c-login__row">
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" placeholder="Enter your username" v-model="username" tid="login__username">
+        <input type="text" id="username" name="username" placeholder="Enter your username" v-model="username" v-focus tid="login__username">
       </div>
       <div class="c-login__row">
         <label for="password">Password:</label>
@@ -23,9 +23,11 @@ import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 
 import MyButton from '@/components/MyButton';
+import Focus from '@/directives/focus';
 
 @Component({
-  components: { MyButton }
+  components: { MyButton },
+  directives: { Focus }
 })
 export default class LoginView extends Vue {
   password = '';

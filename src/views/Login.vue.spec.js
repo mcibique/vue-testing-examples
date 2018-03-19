@@ -7,7 +7,7 @@ import axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';
 import flushPromises from 'flush-promises';
 
-import container, { GLOBAL_ID } from '@di';
+import container, { GLOBAL_ID, VueDI, TIMEOUT_ID } from '@di';
 import LoginView from '@/views/Login.vue';
 import LoginViewPageObj from '@/views/Login.vue.po';
 import { createStore, STORE_ID } from '@/store';
@@ -18,16 +18,22 @@ describe('Login view', function () {
     this.axios = new AxiosMockAdapter(axios);
 
     this.localVue = createLocalVue();
+    this.localVue.use(VueDI);
+
     this.store = createStore(this.localVue);
     container.bind(STORE_ID).toConstantValue(this.store);
 
     this.router = createRouter(this.localVue);
     container.bind(ROUTER_ID).toConstantValue(this.router);
 
+<<<<<<< f013b6472b4d8abb895ff9593e931b06c8d77af5
     // mocking setTimeout, clearTimeout global function and enable time traveling
     let globalMock = {};
     this.clock = lolex.install({ target: globalMock, toFake: ['setTimeout', 'clearTimeout'] });
     container.rebind(GLOBAL_ID).toConstantValue(globalMock);
+=======
+    this.$timeout = container.get(TIMEOUT_ID);
+>>>>>>> WIP
 
     this.mountLoginView = function (options) {
       let wrapper = mount(LoginView, { localVue: this.localVue, router: this.router, store: this.store, ...options });
@@ -43,7 +49,7 @@ describe('Login view', function () {
     this.axios.verifyNoOutstandingExpectation();
     this.axios.restore();
 
-    this.clock.uninstall();
+    this.$timeout.restore();
   });
 
   it('should enter route', function () {
@@ -174,12 +180,23 @@ describe('Login view', function () {
       let expectedTimeWhenHelpSectionIsVisible = 5000;
       let tickStep = 1000;
 
+<<<<<<< f013b6472b4d8abb895ff9593e931b06c8d77af5
       while ((this.clock.now + tickStep) < expectedTimeWhenHelpSectionIsVisible) {
         this.clock.tick(tickStep);
         expect(this.loginView.helpSection.exists()).to.be.false;
       }
 
       this.clock.tick(tickStep);
+=======
+      while ((this.$timeout.now + tickStep) < expectedTimeWhenHelpSectionIsVisible) {
+        this.$timeout.tick(tickStep);
+        this.loginView.update();
+        expect(this.loginView.helpSection.exists()).to.be.false;
+      }
+
+      this.$timeout.tick(tickStep);
+      this.loginView.update();
+>>>>>>> WIP
       expect(this.loginView.helpSection.exists()).to.be.true;
     });
   });
@@ -187,13 +204,13 @@ describe('Login view', function () {
   describe('when the view is destroyed', function () {
     beforeEach(function () {
       this.loginView = this.mountLoginView();
-      expect(Object.keys(this.clock.timers).length).to.equal(1);
+      expect(Object.keys(this.$timeout.timers).length).to.equal(1);
 
       this.loginView.destroy();
     });
 
     it('should perform a clean up', function () {
-      expect(Object.keys(this.clock.timers).length).to.equal(0);
+      expect(Object.keys(this.$timeout.timers).length).to.equal(0);
     });
   });
 });

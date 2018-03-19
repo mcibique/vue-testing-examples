@@ -26,7 +26,6 @@
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 
-import { LazyInject, GLOBAL_ID } from '@di';
 import MyButton from '@/components/MyButton';
 import Focus from '@/directives/focus';
 
@@ -39,8 +38,6 @@ export default class LoginView extends Vue {
   username = '';
   validationError = null;
   displayHelp = false;
-
-  @LazyInject(GLOBAL_ID) global;
 
   login (username, password) {
     return this.$store.dispatch('auth/login', { username, password });
@@ -76,13 +73,13 @@ export default class LoginView extends Vue {
   }
 
   created () {
-    this.displayHelpTimeout = this.global.setTimeout(() => {
+    this.displayHelpTimeout = this.$timeout(() => {
       this.displayHelp = true;
     }, 5000);
   }
 
   destroyed () {
-    this.global.clearTimeout(this.displayHelpTimeout);
+    this.$timeout.cancel(this.displayHelpTimeout);
   }
 }
 </script>

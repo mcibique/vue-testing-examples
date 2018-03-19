@@ -1,5 +1,5 @@
 import './bootstrap';
-import { registerConstantValue } from './di';
+import { registerConstantValue, VueDI } from './di';
 import Vue from 'vue';
 import App from './App.vue';
 import { createRouter, ROUTER_ID } from './router';
@@ -7,6 +7,7 @@ import { createStore, STORE_ID } from './store';
 import './services/api';
 
 Vue.config.productionTip = false;
+Vue.use(VueDI);
 
 let store = createStore(Vue);
 registerConstantValue(STORE_ID, store);

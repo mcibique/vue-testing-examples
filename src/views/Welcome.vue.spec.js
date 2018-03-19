@@ -1,3 +1,4 @@
+import '@unit/globals';
 import Vue from 'vue';
 import { mount, createLocalVue } from '@vue/test-utils';
 import { expect } from 'chai';

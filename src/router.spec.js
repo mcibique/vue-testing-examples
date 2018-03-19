@@ -1,3 +1,4 @@
+import '@unit/globals';
 import { createLocalVue } from '@vue/test-utils';
 import { expect } from 'chai';
 import sinon from 'sinon';

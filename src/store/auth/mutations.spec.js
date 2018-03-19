@@ -1,3 +1,4 @@
+import '@unit/globals';
 import { expect } from 'chai';
 
 import { resetToken, setToken } from './mutations';

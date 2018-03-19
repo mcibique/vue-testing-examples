@@ -1,3 +1,4 @@
+import '@unit/globals';
 import { mount, createLocalVue } from '@vue/test-utils';
 import { compileToFunctions } from 'vue-template-compiler';
 import { expect } from 'chai';

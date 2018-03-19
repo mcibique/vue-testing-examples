@@ -1,3 +1,4 @@
+import '@unit/globals';
 import { expect } from 'chai';
 import axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';

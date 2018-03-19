@@ -1,5 +1,5 @@
 import './bootstrap';
-import { RegisterConstantValue as registerConstantValue } from './di';
+import { registerConstantValue } from './di';
 import Vue from 'vue';
 import App from './App.vue';
 import { createRouter, ROUTER_ID } from './router';

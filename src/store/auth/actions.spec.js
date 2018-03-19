@@ -10,8 +10,7 @@ describe('Store - Auth module actions', function () {
     container.snapshot();
 
     this.authService = {};
-    container.unbind(AUTH_SERVICE_ID);
-    container.bind(AUTH_SERVICE_ID).toConstantValue(this.authService);
+    container.rebind(AUTH_SERVICE_ID).toConstantValue(this.authService);
 
     this.commitStub = sinon.stub();
     this.dispatchStub = sinon.stub();

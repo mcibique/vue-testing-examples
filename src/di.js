@@ -3,11 +3,11 @@ import getDecorators from 'inversify-inject-decorators';
 import { helpers } from 'inversify-vanillajs-helpers';
 
 let container = new Container();
-let { lazyInject: LazyInject } = getDecorators(container);
-let Register = helpers.register(container);
-let RegisterConstantValue = helpers.registerConstantValue(container);
+let { lazyInject } = getDecorators(container);
+let register = helpers.register(container);
+let registerConstantValue = helpers.registerConstantValue(container);
 
-let Override = function (identifier, dependencies, constraint) {
+let override = function (identifier, dependencies, constraint) {
   return function (constructor) {
     helpers.annotate(constructor, dependencies);
     if (container.isBound(identifier)) {
@@ -21,10 +21,14 @@ let Override = function (identifier, dependencies, constraint) {
 };
 
 export {
-  LazyInject,
-  Register,
-  RegisterConstantValue,
-  Override
+  lazyInject,
+  lazyInject as LazyInject,
+  register,
+  register as Register,
+  registerConstantValue,
+  registerConstantValue as RegisterConstantValue,
+  override,
+  override as Override
 };
 
 export default container;

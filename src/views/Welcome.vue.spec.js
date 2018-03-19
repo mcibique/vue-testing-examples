@@ -30,15 +30,13 @@ describe('Welcome view', function () {
     this.profileService = {
       getProfile: sinon.stub().returnsPromise()
     };
-    container.unbind(PROFILE_SERVICE_ID);
-    container.bind(PROFILE_SERVICE_ID).toConstantValue(this.profileService);
+    container.rebind(PROFILE_SERVICE_ID).toConstantValue(this.profileService);
 
     // email service
     this.emailService = {
       getEmails: sinon.stub().returnsPromise()
     };
-    container.unbind(EMAIL_SERVICE_ID);
-    container.bind(EMAIL_SERVICE_ID).toConstantValue(this.emailService);
+    container.rebind(EMAIL_SERVICE_ID).toConstantValue(this.emailService);
 
     // mount fn
     this.mountWelcomeView = function (options) {

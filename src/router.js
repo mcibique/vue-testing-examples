@@ -38,7 +38,7 @@ export function createRouter (vueInstance = Vue, store = container.get(STORE_ID)
         component: () => import(/* webpackChunkName: "auth" */ './views/Welcome.vue')
       },
       {
-        path: '*',
+        path: '/',
         name: 'root',
         redirect () {
           if (store.state.auth.token) {
@@ -47,6 +47,10 @@ export function createRouter (vueInstance = Vue, store = container.get(STORE_ID)
             return '/login';
           }
         }
+      },
+      {
+        path: '*',
+        redirect: 'root'
       }
     ]
   });

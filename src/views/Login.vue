@@ -14,6 +14,10 @@
       </div>
 
       <my-button type="submit" class="c-login__submit-button" tid="login__submit-button" :primary="true">Log in</my-button>
+      <div class="c-login__help-section" tid="login__help-section" v-if="displayHelp">
+        <a class="c-login__help-section-link" href="#" tid="login__help-section-link">Need help?</a>
+        <a class="c-login__help-section-link" href="#" tid="login__help-section-link">Forgot your password?</a>
+      </div>
     </form>
   </section>
 </template>
@@ -22,6 +26,7 @@
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 
+import { LazyInject, GLOBAL_ID } from '@di';
 import MyButton from '@/components/MyButton';
 import Focus from '@/directives/focus';
 
@@ -33,6 +38,9 @@ export default class LoginView extends Vue {
   password = '';
   username = '';
   validationError = null;
+  displayHelp = false;
+
+  @LazyInject(GLOBAL_ID) global;
 
   login (username, password) {
     return this.$store.dispatch('auth/login', { username, password });
@@ -65,6 +73,16 @@ export default class LoginView extends Vue {
         this.password = '';
         this.validationError = response.data.error.message;
       });
+  }
+
+  created () {
+    this.displayHelpTimeout = this.global.setTimeout(() => {
+      this.displayHelp = true;
+    }, 5000);
+  }
+
+  destroyed () {
+    this.global.clearTimeout(this.displayHelpTimeout);
   }
 }
 </script>
@@ -103,5 +121,15 @@ export default class LoginView extends Vue {
 
   .c-login__submit-button {
     margin-top: 2rem;
+  }
+
+  .c-login__help-section {
+    margin-top: 2rem;
+    line-height: 2.5rem;
+  }
+
+  .c-login__help-section-link:after {
+    content: '';
+    display: block;
   }
 </style>

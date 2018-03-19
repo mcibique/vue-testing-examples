@@ -32,3 +32,7 @@ export {
 };
 
 export default container;
+
+// global registrations
+export const GLOBAL_ID = Symbol('global');
+container.bind(GLOBAL_ID).toConstantValue(global);

@@ -22,6 +22,14 @@ export default class LoginViewPageObj extends BasePageObj {
     return this.tid('login__validation-error');
   }
 
+  get helpSection () {
+    return this.tid('login__help-section');
+  }
+
+  get helpSectionLinks () {
+    return this.tids('login__help-section-links');
+  }
+
   submit () {
     this.form.trigger('submit');
   }

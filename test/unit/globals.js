@@ -2,6 +2,9 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 
 beforeEach(function () {
+  if (console.error.restore) {
+    console.error.restore();
+  }
   sinon.spy(console, 'error');
 });
 

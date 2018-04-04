@@ -214,3 +214,174 @@ class Nav {
   }
 }
 ```
+
+# Dependency Injection
+
+Mocking dependencies and imports in tests might be really tedious. Using [inject-loader](https://github.com/plasticine/inject-loader) can help a lot but requires lots of ugly coding. Another option is to involve dependency injection, such as [inversify](https://github.com/inversify/InversifyJS). They are primarily focused on Typescript but they support [vanilla JS](https://github.com/inversify/inversify-vanillajs-helpers) too. In scenarios where you don't have control over instantiating components and services, there is another very handy [toolbox](https://github.com/inversify/inversify-inject-decorators) which gives you a set of decorators usable in Vue components.
+
+## Setting up DI in VUE
+
+We need to create a container instance for holding all registered injections. We need only one instance per application:
+```js
+import { Container } from 'inversify';
+let container = new Container();
+export default container;
+```
+and then just execute it in the bootstrap phase of the application:
+```js
+import './di';
+```
+Let's create a service:
+```js
+export default class AuthService {
+  login (username, password) {
+    // do something
+  }
+}
+```
+... register it in `di.js`:
+```js
+import { Container } from 'inversify';
+import AuthService from 'services/auth';
+let container = new Container();
+container.bind('authService').to(AuthService);
+export default container;
+```
+... and then use it in VUE component:
+```js
+import container from './di';
+
+class LoginView extends Vue {
+  constructor() {
+    this.authService = container.get('authService');
+  }
+  login (username, password) {
+    return this.authService.login(username, password);
+  }
+}
+```
+There are a couple of issues with this approach:
+1. If we register all our services in `di.js`, then we nullified code splitting because everything is required during the application bootstrap. To solve this issue, let's register service only when is required for the first time:
+```js
+import container from './di';
+
+export default class AuthService {
+  login (username, password) {
+    // do something
+  }
+}
+
+container.bind('authService').to(AuthService);
+```
+2. We have lots of [magic strings](http://deviq.com/magic-strings/) everywhere (e.g. what we would do if `authService` changes the name? How we prevent naming collisions). Well, ES6 introduced [symbols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol) that we can use. Don't forget to export the Symbol:
+```js
+import container from './di';
+
+export const AUTH_SERVICE_ID = Symbol('authService');
+
+export default class AuthService {
+  login (username, password) {
+    // do something
+  }
+}
+
+container.bind(AUTH_SERVICE_ID).to(AuthService);
+```
+... and use it in VUE component:
+```js
+import container from './di';
+import { AUTH_SERVICE_ID } from './services/auth';
+
+class LoginView extends Vue {
+  constructor() {
+    this.authService = container.get(AUTH_SERVICE_ID);
+  }
+  login (username, password) {
+    return this.authService.login(username, password);
+  }
+}
+```
+
+## Using decorators
+Decorators can help us to eliminate lots of code repetition and make our code cleaner.
+
+### @Register decorator
+`inversify-vanillajs-helpers` can create Register helper which can be used as a decorator anywhere in our code. Let's add this code to `di.js`:
+```js
+import { helpers } from 'inversify-vanillajs-helpers';
+
+let container = new Container();
+let register = helpers.register(container);
+
+export { register as Register } // we are exporting decorator with capital R because other decorators we are already using (e.g. for Vuex) also have a capital letter
+```
+
+... and then use it:
+```js
+import { Register } from '@di';
+
+export const AUTH_SERVICE_ID = Symbol('authService');
+
+@Register(AUTH_SERVICE_ID)
+export default class AuthService {
+  login (username, password) {
+    // do something
+  }
+}
+
+```
+
+If your service depends on other services, you can pass IDs as a second parameters:
+```js
+import { Register } from '@di';
+import { OTHER_SERVICE_ID } from './other-service';
+
+export const AUTH_SERVICE_ID = Symbol('authService');
+
+@Register(AUTH_SERVICE_ID, [ OTHER_SERVICE_ID ])
+export default class AuthService {
+  constructor(otherService) {
+    this.otherService = otherService;
+  }
+
+  login (username, password) {
+    username = otherService.doSomething(username);
+    // do something else
+  }
+}
+```
+Check out documentation for [inversify-vanillajs-helpers](https://github.com/inversify/inversify-vanillajs-helpers#usage) to see all possibilities
+
+### @LazyInject decorator
+We can improve injection in our VUE components too by using LazyInject decorators from [inversify-inject-decorators](https://github.com/inversify/inversify-inject-decorators). Let's create it and export it in `di.js` first:
+```js
+import getDecorators from 'inversify-inject-decorators';
+
+let container = new Container();
+let { lazyInject } = getDecorators(container);
+
+export { lazyInject as LazyInject }
+```
+Now we can adjust code in VUE component:
+```js
+import { LazyInject } from '@di';
+import { AUTH_SERVICE_ID } from './services/auth';
+
+class LoginView extends Vue {
+  @LazyInject(AUTH_SERVICE_ID) authService;
+
+  login (username, password) {
+    return this.authService.login(username, password);
+  }
+}
+```
+`LazyInject` caches the instance of `authService` until the component is destroyed. Check out the documentation for [inversify-inject-decorators](https://github.com/inversify/inversify-inject-decorators#basic-property-lazy-injection-with-lazyinject) to see more options and other decorators.
+
+
+## Testing using Dependency Injection
+
+TODO
+* mock service in component tests
+* mock the other service in service tests
+* mock window.location
+* mock store in the router

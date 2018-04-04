@@ -273,7 +273,7 @@ export default class AuthService {
 
 container.bind('authService').to(AuthService);
 ```
-2. We have lots of [magic strings](http://deviq.com/magic-strings/) everywhere (e.g. what we would do if `authService` changes the name? How we prevent naming collisions). Well, ES6 introduced [symbols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol) that we can use. Don't forget to export the Symbol:
+2. We have lots of [magic strings](http://deviq.com/magic-strings/) everywhere (e.g. what we would do if `authService` changes the name? How we prevent naming collisions?). Well, ES6 introduced [symbols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol) that we can use. Don't forget to export the symbol so it can be used later:
 ```js
 import container from './di';
 
@@ -331,7 +331,7 @@ export default class AuthService {
 
 ```
 
-If your service depends on other services, you can pass IDs as a second parameters:
+If your service depends on other services, you can pass array of IDs as a second parameter:
 ```js
 import { Register } from '@di';
 import { OTHER_SERVICE_ID } from './other-service';
@@ -350,10 +350,11 @@ export default class AuthService {
   }
 }
 ```
+DI will ensure that the otherService will be instantiated first, using `OTHER_SERVICE_ID` to locate the constructor.
 Check out documentation for [inversify-vanillajs-helpers](https://github.com/inversify/inversify-vanillajs-helpers#usage) to see all possibilities
 
 ### @LazyInject decorator
-We can improve injection in our VUE components too by using LazyInject decorators from [inversify-inject-decorators](https://github.com/inversify/inversify-inject-decorators). Let's create it and export it in `di.js` first:
+We can improve injection in our VUE components too, by using LazyInject decorators from [inversify-inject-decorators](https://github.com/inversify/inversify-inject-decorators). Let's create it and export it in `di.js` first:
 ```js
 import getDecorators from 'inversify-inject-decorators';
 

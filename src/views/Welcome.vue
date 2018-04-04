@@ -49,11 +49,11 @@ export default class WelcomeView extends Vue {
 </script>
 
 <style>
-  .welcome__header {
-    border-bottom: 1px solid #333;
-    margin-top: 2rem;
-    margin-bottom: 5rem;
-    font-size: 4rem;
-    line-height: 5rem;
-  }
+.welcome__header {
+  border-bottom: 1px solid #333;
+  margin-top: 2rem;
+  margin-bottom: 5rem;
+  font-size: 4rem;
+  line-height: 5rem;
+}
 </style>

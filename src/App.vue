@@ -63,7 +63,7 @@ label {
 }
 
 label + input {
-  margin-top: .5rem;
+  margin-top: 0.5rem;
 }
 
 p {

@@ -23,10 +23,6 @@ export default class BasePageObj {
     return this.wrapper.attributes();
   }
 
-  update () {
-    return this.wrapper.update();
-  }
-
   destroy () {
     return this.wrapper.destroy();
   }

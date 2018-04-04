@@ -26,7 +26,7 @@ describe('Login view', function () {
     this.router = createRouter(this.localVue);
     container.bind(ROUTER_ID).toConstantValue(this.router);
 
-    // mocking setTimeout, clearTimeout global functiion and enable time traveling
+    // mocking setTimeout, clearTimeout global function and enable time traveling
     let globalMock = {};
     this.clock = lolex.install({ target: globalMock, toFake: ['setTimeout', 'clearTimeout'] });
     container.rebind(GLOBAL_ID).toConstantValue(globalMock);
@@ -180,12 +180,10 @@ describe('Login view', function () {
 
       while ((this.clock.now + tickStep) < expectedTimeWhenHelpSectionIsVisible) {
         this.clock.tick(tickStep);
-        this.loginView.update();
         expect(this.loginView.helpSection.exists()).to.be.false;
       }
 
       this.clock.tick(tickStep);
-      this.loginView.update();
       expect(this.loginView.helpSection.exists()).to.be.true;
     });
   });

@@ -7,7 +7,7 @@ let { lazyInject } = getDecorators(container);
 let register = helpers.register(container);
 let registerConstantValue = helpers.registerConstantValue(container);
 
-let override = function (identifier, dependencies, constraint) {
+function override (identifier, dependencies, constraint) {
   return function (constructor) {
     helpers.annotate(constructor, dependencies);
     if (container.isBound(identifier)) {
@@ -20,6 +20,14 @@ let override = function (identifier, dependencies, constraint) {
   };
 };
 
+function overrideWithConstantValue (identifier, newConstantValue) {
+  if (container.isBound(identifier)) {
+    container.unbind(identifier);
+  }
+
+  return registerConstantValue(identifier, newConstantValue);
+}
+
 export {
   lazyInject,
   lazyInject as LazyInject,
@@ -28,7 +36,8 @@ export {
   registerConstantValue,
   registerConstantValue as RegisterConstantValue,
   override,
-  override as Override
+  override as Override,
+  overrideWithConstantValue
 };
 
 export default container;

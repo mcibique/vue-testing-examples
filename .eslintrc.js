@@ -1,5 +1,10 @@
 module.exports = {
   root: true,
+  parserOptions: {
+    ecmaVersion: 2017,
+    parser: "babel-eslint",
+    sourceType: "module"
+  },
   env: {
     mocha: true
   },

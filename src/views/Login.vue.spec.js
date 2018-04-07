@@ -15,8 +15,6 @@ import { createRouter, ROUTER_ID } from '@/router';
 
 describe('Login view', function () {
   beforeEach(function () {
-    container.snapshot();
-
     this.axios = new AxiosMockAdapter(axios);
 
     this.localVue = createLocalVue();
@@ -42,8 +40,6 @@ describe('Login view', function () {
   });
 
   afterEach(function () {
-    container.restore();
-
     this.axios.verifyNoOutstandingExpectation();
     this.axios.restore();
 

@@ -2,16 +2,13 @@ import '@unit/globals';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import container from '@di';
+import { mockService } from '@unit/utils/di';
 import { AUTH_SERVICE_ID } from '@/services/auth';
 import { login, logout } from './actions';
 
 describe('Store - Auth module actions', function () {
   beforeEach(function () {
-    container.snapshot();
-
-    this.authService = {};
-    container.rebind(AUTH_SERVICE_ID).toConstantValue(this.authService);
+    this.authServiceMock = mockService(AUTH_SERVICE_ID);
 
     this.commitStub = sinon.stub();
     this.dispatchStub = sinon.stub();
@@ -22,25 +19,26 @@ describe('Store - Auth module actions', function () {
   });
 
   afterEach(function () {
-    container.restore();
+    this.authServiceMock.verify();
+    this.authServiceMock.restore();
   });
 
   describe('login', function () {
     beforeEach(function () {
-      this.authService.login = sinon.stub().returnsPromise();
+      this.loginApiMock = this.authServiceMock.expects('login').returnsPromise().once();
     });
 
     it('should verify login credentials using external service', function () {
       let username = 'random_username';
       let password = 'random_password';
       login(this.actionContext, { username, password });
-      expect(this.authService.login).to.have.been.calledWith(username, password);
+      expect(this.loginApiMock).to.have.been.calledWith(username, password);
     });
 
     describe('when given credentials are valid', function () {
       beforeEach(function () {
         this.authToken = 'random_token';
-        this.authService.login.resolves(this.authToken);
+        this.loginApiMock.resolves(this.authToken);
       });
 
       it('should set token into the store', async function () {
@@ -54,13 +52,13 @@ describe('Store - Auth module actions', function () {
 
     describe('when given credentials are not valid', function () {
       beforeEach(function () {
-        this.authService.login.rejects();
+        this.loginApiMock.rejects({});
       });
 
       it('should not update token in the store', async function () {
         let username = 'random_username';
         let password = 'random_password';
-        let errorHandler = sinon.stub();
+        let errorHandler = sinon.spy();
 
         await login(this.actionContext, { username, password }).catch(errorHandler);
 
@@ -73,17 +71,17 @@ describe('Store - Auth module actions', function () {
 
   describe('logout', function () {
     beforeEach(function () {
-      this.authService.logout = sinon.stub().returnsPromise();
+      this.logoutApiMock = this.authServiceMock.expects('logout').returnsPromise().once();
     });
 
     it('should notify external service', function () {
       logout(this.actionContext);
-      expect(this.authService.logout).to.have.been.called;
+      expect(this.logoutApiMock).to.have.been.called;
     });
 
     describe('when external service clean up has finished', function () {
       beforeEach(function () {
-        this.authService.logout.resolves();
+        this.logoutApiMock.resolves();
       });
 
       it('should perform the user session clean up in the store', async function () {
@@ -94,7 +92,7 @@ describe('Store - Auth module actions', function () {
 
     describe('when external service clean up has failed', function () {
       beforeEach(function () {
-        this.authService.logout.rejects();
+        this.logoutApiMock.rejects();
       });
 
       it('should still perform the user session clean up in the store', async function () {

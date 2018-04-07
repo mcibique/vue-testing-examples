@@ -1,0 +1,2 @@
+import './console';
+import './di';

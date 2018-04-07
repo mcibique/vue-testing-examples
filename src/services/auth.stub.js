@@ -2,12 +2,18 @@ import axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';
 import { Override } from '@di';
 
+import { CREDENTIALS_SERVICE_ID } from './credentials';
 import AuthService, { AUTH_SERVICE_ID } from './auth.js'; // always use '.js' extension otherwise this module will required.
 
 export { AUTH_SERVICE_ID };
 
-@Override(AUTH_SERVICE_ID)
+@Override(AUTH_SERVICE_ID, [CREDENTIALS_SERVICE_ID])
 export default class AuthStubService extends AuthService {
+  constructor (credentialsService) {
+    super(credentialsService);
+    this.credentialsService = credentialsService;
+  }
+
   login (username, password) {
     let axiosMock = new AxiosMockAdapter(axios);
     if (username === password) {

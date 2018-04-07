@@ -1,20 +1,14 @@
 import '@unit/globals';
 import { expect } from 'chai';
 
-import container from '@di';
+import { registerConstantValue } from '@di';
 import { STORE_ID } from '@/store';
 import { authRequestInterceptor } from './auth-interceptor';
 
 describe('Auth interceptor', function () {
   beforeEach(function () {
-    container.snapshot();
-
     this.store = { state: { auth: {} } };
-    container.bind(STORE_ID).toConstantValue(this.store);
-  });
-
-  afterEach(function () {
-    container.restore();
+    registerConstantValue(STORE_ID, this.store);
   });
 
   describe('when user is already authenticated', function () {

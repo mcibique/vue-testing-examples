@@ -15,8 +15,6 @@ import { EMAIL_SERVICE_ID } from '@/services/email';
 
 describe('Welcome view', function () {
   beforeEach(function () {
-    container.snapshot();
-
     this.localVue = createLocalVue();
 
     // store
@@ -50,10 +48,6 @@ describe('Welcome view', function () {
     this.router.push({ name: 'welcome' });
 
     return flushPromises();
-  });
-
-  afterEach(function () {
-    container.restore();
   });
 
   it('should enter route', function () {

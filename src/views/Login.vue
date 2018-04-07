@@ -88,48 +88,48 @@ export default class LoginView extends Vue {
 </script>
 
 <style>
-  .c-login {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100%;
-  }
+.c-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
 
-  .c-login__header {
-    font-size: 3.2rem;
-    line-height: 4rem;
-    margin: 0;
-    margin-bottom: 2rem;
-    text-align: center;
-  }
+.c-login__header {
+  font-size: 3.2rem;
+  line-height: 4rem;
+  margin: 0;
+  margin-bottom: 2rem;
+  text-align: center;
+}
 
-  .c-login__validation_error {
-    color: #c00;
-    padding: 1rem 0;
-  }
+.c-login__validation_error {
+  color: #c00;
+  padding: 1rem 0;
+}
 
-  .c-login__form {
-    max-width: 400px;
-    width: 100%;
-    border: 1px solid #eee;
-    padding: 4rem;
-  }
+.c-login__form {
+  max-width: 400px;
+  width: 100%;
+  border: 1px solid #eee;
+  padding: 4rem;
+}
 
-  .c-login__row + .c-login__row {
-    margin-top: 2rem;
-  }
+.c-login__row + .c-login__row {
+  margin-top: 2rem;
+}
 
-  .c-login__submit-button {
-    margin-top: 2rem;
-  }
+.c-login__submit-button {
+  margin-top: 2rem;
+}
 
-  .c-login__help-section {
-    margin-top: 2rem;
-    line-height: 2.5rem;
-  }
+.c-login__help-section {
+  margin-top: 2rem;
+  line-height: 2.5rem;
+}
 
-  .c-login__help-section-link:after {
-    content: '';
-    display: block;
-  }
+.c-login__help-section-link:after {
+  content: "";
+  display: block;
+}
 </style>

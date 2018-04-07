@@ -12,8 +12,6 @@ import AboutViewPageObj from '@/views/About.vue.po';
 
 describe('About view', function () {
   beforeEach(function () {
-    container.snapshot();
-
     this.localVue = createLocalVue();
     this.store = createStore(this.localVue);
     container.bind(STORE_ID).toConstantValue(this.store);
@@ -29,10 +27,6 @@ describe('About view', function () {
     this.router.push({ name: 'about' });
 
     return flushPromises();
-  });
-
-  afterEach(function () {
-    container.restore();
   });
 
   it('should enter route', function () {

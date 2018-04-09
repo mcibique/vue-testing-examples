@@ -25,7 +25,7 @@ Issues:
 
 # Test pyramid, dumb vs smart components, mount vs shallow
 
-If you are not familiar with [testing pyramid](https://martinfowler.com/articles/practical-test-pyramid.html), check out the article about it written by [Martin Fowler](https://martinfowler.com/). Usually, writing unit tests for VUE app is not enough, especially if you have a component with lots of logic and lots of dependencies, you would like to test it together. You can try to do that in E2E tests, but E2E tests should be running against fully working and fully configured system with DB, all back-end services and without any mocks. You need something in the middle, something which integrates a couple of components together but mocks API calls and can execute it in a reasonable time (usually E2E tests takes from 5 mins up to 5 hours) - you need integration tests. The app which docs you are reading now is using following rules to determine which type of tests, how and what should be tested:
+If you are not familiar with [testing pyramid](https://martinfowler.com/articles/practical-test-pyramid.html), check out the article about it written by [Martin Fowler](https://martinfowler.com/). Usually, writing unit tests for VUE app is not enough, especially if you have a component with lots of logic and lots of dependencies, you would like to test it together. You can try to do that in E2E tests, but E2E tests should be running against fully working and fully configured system with DB, all back-end services and without any mocks. You need something in the middle, something which integrates a couple of components together but mocks API calls and can execute it in a reasonable time (usually E2E tests takes from 5 mins up to 5 hours) - you need integration tests. The app which docs you are reading now is using following rules to determine which type of tests, how and what should be tested. They are very different if you are testing [smart or dumb components](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0).
 ## Dumb components
 A dumb component should never be aware of its parent and children, all data to display should be given from props. The component should not perform any operation in store, should not navigate to different routes and should not perform any API calls. The only test we can do is unit test, using only shallow rendering.
 
@@ -36,10 +36,10 @@ We should focus on testing as much as possible here because the less we are mock
 
 Use user interactions instead of calling methods in component directly. That also brings your tests closer to the way how your components are used in production.
 
-## Functional component
+## Functional components
 A functional component is considered dumb component and should follow the same rules.
 
-## Service
+## Services
 Services should be autonomous and should not rely on VUE. A unit tests are just enough. If service is calling back-end API, mock it and test all possible return codes (same as smart components). If service depends on another service, mock them too.
 
 ## Filters
@@ -59,7 +59,7 @@ If there is a logic in your router config (e.g. `beforeRouteEnter`), test this l
 |Dumb components |Unit       |shallow      |mock         |N/A      |N/A        |N/A        |
 |Smart components|Integration|mount        |do not mock  |mock     |do not mock|do not mock|
 |Func components |Unit       |shallow      |mock         |N/A      |N/A        |N/A        |
-|Service         |Unit       |N/A          |mock         |mock     |mock       |mock       |
+|Services        |Unit       |N/A          |mock         |mock     |mock       |mock       |
 |Filters         |Unit       |N/A          |N/A          |N/A      |N/A        |N/A        |
 |Directives      |Integration|mount        |N/A          |N/A      |N/A        |N/A        |
 |Store           |Unit       |N/A          |mock         |mock     |N/A        |mock       |

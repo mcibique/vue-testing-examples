@@ -671,8 +671,8 @@ import AuthService, { AUTH_SERVICE_ID } from './auth.js'; // always use '.js' ex
 
 export { AUTH_SERVICE_ID };
 
-@Override(AUTH_SERVICE_ID, [CREDENTIALS_SERVICE_ID])
-export default class AuthStubService extends AuthService {
+@Override(AUTH_SERVICE_ID)
+export default class AuthServiceStub extends AuthService {
   login (username, password) {
     let axiosMock = new AxiosMockAdapter(axios);
     if (username === password) {

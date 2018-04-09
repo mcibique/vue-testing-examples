@@ -1,20 +1,14 @@
 # vue-testing-examples
 
+The documentation is still under construction.
+
 To document:
-1. Testing dumb component
-1. Testing smart component
-1. Testing functional component
 1. Testing v-model
 1. Testing navigation guards
 1. Testing filter
 1. Testing directive
 1. Mocking vuex
 1. Mocking router
-1. Mocking axios
-1. Assert `console.error()`
-1. Assert axios expectations left overs
-1. Adding page objects
-1. Using custom selectors in page objects (tids)
 1. Inversify and mocking router/store in tests
 1. lolex example with time forwarding
 1. mock store in the router
@@ -23,13 +17,53 @@ Introduce the dev stack:
 * vue, vuex, vue-router, vue-property-decorator, vuex-class, axios, lodash, inversify (vanilla js solution), sinon, mocha, sinon-chai, sinon-stub-promise flush-promises, lolex
 
 Provide examples for
-* ??? using stub services while running the app ???
-* ??? how shallow vs mount would help in test ???
 * ??? testing mutations, actions ???
 * ??? testing `router.push()` to the route with async component using `import()` ???
 
 Issues:
 * !!! `trigger("click")` on `<button type="submit">` doesn't trigger submit on form. !!!
+
+# Test pyramid, dumb vs smart components, mount vs shallow
+
+If you are not familiar with [testing pyramid](https://martinfowler.com/articles/practical-test-pyramid.html), check out the article about it written by [Martin Fowler](https://martinfowler.com/). Usually, writing unit tests for VUE app is not enough, especially if you have a component with lots of logic and lots of dependencies, you would like to test it together. You can try to do that in E2E tests, but E2E tests should be running against fully working and fully configured system with DB, all back-end services and without any mocks. You need something in the middle, something which integrates a couple of components together but mocks API calls and can execute it in a reasonable time (usually E2E tests takes from 5 mins up to 5 hours) - you need integration tests. The app which docs you are reading now is using following rules to determine which type of tests, how and what should be tested:
+## Dumb components
+A dumb component should never be aware of its parent and children, all data to display should be given from props. The component should not perform any operation in store, should not navigate to different routes and should not perform any API calls. The only test we can do is unit test, using only shallow rendering.
+
+## Smart components
+A smart component is responsible for loading data (from API or store), interacting with the store, passing props down and waiting for events from children, thus the component should be tested using integration test and be aware of its children during the tests. For that, we should always be using `mount` instead of `shallow` rendering. We should mock out only a necessary minimum from the component. Store and router should be used without mocking, so we can test actions dispatched by the component. The only thing to mock is back-end API. If API can return multiple HTTP Codes (200, 302, 400, 401, 403, 404, 412), test all possibilities here, because it's cheap with mocked API. Later, in E2E tests, test only a happy path (200).
+
+We should focus on testing as much as possible here because the less we are mocking we get more confidence in our code.
+
+Use user interactions instead of calling methods in component directly. That also brings your tests closer to the way how your components are used in production.
+
+## Functional component
+A functional component is considered dumb component and should follow the same rules.
+
+## Service
+Services should be autonomous and should not rely on VUE. A unit tests are just enough. If service is calling back-end API, mock it and test all possible return codes (same as smart components). If service depends on another service, mock them too.
+
+## Filters
+A filter should be a simple pure function without any side effects and should not be using the store, router, any service or API calls. Unit testing is considered enough here.
+
+## Directives
+A directive usually requires another HTML element and an user interaction to be triggered. Integration tests and `mount` are better for these scenarios.
+
+## Store
+A store should have tested all actions and mutations using unit tests. Mock all services and API calls. Smart components should be testing interaction with the store in their tests. If the store uses a router, mock it.
+
+## Router
+If there is a logic in your router config (e.g. `beforeRouteEnter`), test this logic in unit tests. If the same logic uses a store, mock it too. Everything else should be mocked as well. Routing between components should be tested in integration tests in smart components or in E2E tests.
+
+|What            |Test type  |shallow/mount|Service calls|API calls|store      |router     |
+|----------------|-----------|-------------|-------------|---------|-----------|-----------|
+|Dumb components |Unit       |shallow      |mock         |N/A      |N/A        |N/A        |
+|Smart components|Integration|mount        |do not mock  |mock     |do not mock|do not mock|
+|Func components |Unit       |shallow      |mock         |N/A      |N/A        |N/A        |
+|Service         |Unit       |N/A          |mock         |mock     |mock       |mock       |
+|Filters         |Unit       |N/A          |N/A          |N/A      |N/A        |N/A        |
+|Directives      |Integration|mount        |N/A          |N/A      |N/A        |N/A        |
+|Store           |Unit       |N/A          |mock         |mock     |N/A        |mock       |
+|Router          |Unit       |N/A          |mock         |mock     |mock       |N/A        |
 
 # Mocking axios
 
@@ -602,7 +636,7 @@ it('should navigate to new url', function () {
 });
 ```
 
-## Using stub services in dev mode
+# Using stub services in dev mode
 
 Local development usually requires working back-end services (API) to be running on developers machine. While the API is still in development, usually it's very unstable with lots of bugs (we all producing bugs). Front-end developers often using a technique of stubbing API and work with fake implementation instead. Just create a simple express server, develop your application against it and once the back-end API is ready, just unplug the stubs. Stubs also help to simulate scenarios which are really hard to achieve using real back-end and DB.
 

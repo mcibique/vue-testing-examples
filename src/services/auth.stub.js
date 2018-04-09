@@ -3,7 +3,7 @@ import AxiosMockAdapter from 'axios-mock-adapter';
 import { Override } from '@di';
 
 import { CREDENTIALS_SERVICE_ID } from './credentials';
-import AuthService, { AUTH_SERVICE_ID } from './auth.js'; // always use '.js' extension otherwise this module will required.
+import AuthService, { AUTH_SERVICE_ID } from './auth.js'; // always use '.js' extension otherwise this module will be required.
 
 export { AUTH_SERVICE_ID };
 

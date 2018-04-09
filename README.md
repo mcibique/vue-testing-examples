@@ -86,7 +86,7 @@ AxiosMockAdapter.prototype.verifyNoOutstandingExpectation = function () {
   }
 };
 ```
-Dont's
+### Don'ts
 * Do not mock original axios functions because you loose huge portion of functionality done by axios (e.g. custom interceptors).
 
 ```js
@@ -600,5 +600,91 @@ it('should navigate to new url', function () {
 
   expect(this.windowMock.location.href).to.equal('some/new/url'); // assert correct URL has been set
 });
-
 ```
+
+## Using stub services in dev mode
+
+Local development usually requires working back-end services (API) to be running on developers machine. While the API is still in development, usually it's very unstable with lots of bugs (we all producing bugs). Front-end developers often using a technique of stubbing API and work with fake implementation instead. Just create a simple express server, develop your application against it and once the back-end API is ready, just unplug the stubs. Stubs also help to simulate scenarios which are really hard to achieve using real back-end and DB.
+
+Instead of building your own express server, webpack offers another nice solution how to create stubs for your services. Let's have an `AuthService` which communicates with real back-end API:
+```js
+import axios from 'axios';
+import { Register } from '@di';
+
+export const AUTH_SERVICE_ID = Symbol('authService');
+
+@Register(AUTH_SERVICE_ID)
+export default class AuthService {
+  login (username, password) {
+    return axios.post('/api/login', { username, password }).then(response => response.data);
+  }
+
+  logout () {
+    return axios.post('/api/logout').then(response => response.data);
+  }
+}
+```
+And let's pretend that the back-end is not ready yet. We can create twin service with fake implementation:
+```js
+export default class AuthServiceStub {
+  login (username, password) {
+    return Promise.resolve("random_token");
+  }
+
+  logout () {
+    return Promise.resolve({});
+  }
+}
+```
+Now we need to solve a problem how and when to switch these two services. How can we tell the app which one to use? Webpack has a nice feature called [resolve.extensions](https://webpack.js.org/configuration/resolve/#resolve-extensions) which is used as a decision point to determine extension of the file. In vue app, the value is set to `[".js", ".vue", ".json"]`. If you add `import AuthService from './auth-service'`, then webpack tries to find a file `./auth-service.js`, then `./auth-service.vue` and then `./auth-service.json`, the first match wins. So if we move our AuthServiceStub to another file `./auth-service.stub.js` and then tell the webpack to resolve extensions in order `[".stub.js", ".js", ".vue", ".json"]`, it will first try to import our stub service and only if a stub is not present, then it imports the real implementation.
+
+This logic can be controlled via [configuration](https://www.npmjs.com/package/webpack-chain), in `vue.config.js`.
+```js
+let useServiceStub = !!process.env.npm_config_stub;
+
+module.exports = {
+  chainWebpack (config) {
+    if (useServiceStub) {
+      config.resolve.extensions.prepend('.stub.js');
+    }
+  }
+};
+```
+`npm_config_*` is a feature of `npm run-script`. If you call any npm script with `--stub` flag, `process.env.npm_config_stub` will be set to true. In our vue app, there is already command for serving the app in `package.json`:
+```bash
+npm run serve
+```
+^^ this one sets `npm_config_stub` to false, so the app will run without stubs
+```bash
+npm run serve --stub
+```
+^^ and this one with stubs.
+
+### Dos
+* You can reuse logic from real implementation in your stub by inheriting the stub from a real one. In this example, you can see the stub not completely overriding existing code, but rather mocking API call based on the username and password. The advantage is that logic inside real implementation is now running too, which might be important for you. Also, mocking axios is better than returning resolved promises because you might have registered an error interceptor (or any other request interceptor) which you would like to see running too.
+```js
+import axios from 'axios';
+import AxiosMockAdapter from 'axios-mock-adapter';
+
+import { Override } from '@di';
+import AuthService, { AUTH_SERVICE_ID } from './auth.js'; // always use '.js' extension otherwise this module will be required.
+
+export { AUTH_SERVICE_ID };
+
+@Override(AUTH_SERVICE_ID, [CREDENTIALS_SERVICE_ID])
+export default class AuthStubService extends AuthService {
+  login (username, password) {
+    let axiosMock = new AxiosMockAdapter(axios);
+    if (username === password) {
+      axiosMock.onPost('/api/login', { username, password }).replyOnce(200, 'random_token');
+    } else {
+      axiosMock.onPost('/api/login', { username, password }).replyOnce(401, { error: { message: 'Invalid username or password' } });
+    }
+
+    return super.login(username, password).finally(() => axiosMock.restore()); // call original function and restore axios back to original state
+  }
+}
+```
+
+### Don'ts
+* If you are inheriting classes, don't forget to always call `super()` methods.

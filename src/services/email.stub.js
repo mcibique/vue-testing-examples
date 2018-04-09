@@ -2,13 +2,13 @@ import axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';
 import { Override } from '@di';
 
-import EmailService, { EMAIL_SERVICE_ID } from './email.js'; // always use '.js' extension otherwise this module will required.
+import EmailService, { EMAIL_SERVICE_ID } from './email.js'; // always use '.js' extension otherwise this module will be required.
 
 export { EMAIL_SERVICE_ID };
 
 @Override(EMAIL_SERVICE_ID)
 export default class EmailStubService extends EmailService {
-  getEmails () {
+  getEmails() {
     let axiosMock = new AxiosMockAdapter(axios);
     axiosMock.onGet('/api/emails').replyOnce(200, [{
       id: 1,

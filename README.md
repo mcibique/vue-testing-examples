@@ -17,6 +17,7 @@ To document:
 1. Using custom selectors in page objects (tids)
 1. Inversify and mocking router/store in tests
 1. lolex example with time forwarding
+1. mock store in the router
 
 Introduce the dev stack:
 * vue, vuex, vue-router, vue-property-decorator, vuex-class, axios, lodash, inversify (vanilla js solution), sinon, mocha, sinon-chai, sinon-stub-promise flush-promises, lolex
@@ -334,23 +335,24 @@ export default class AuthService {
 If your service depends on other services, you can pass array of IDs as a second parameter:
 ```js
 import { Register } from '@di';
-import { OTHER_SERVICE_ID } from './other-service';
+import { CREDENTIALS_SERVICE_ID } from './credentials';
 
 export const AUTH_SERVICE_ID = Symbol('authService');
 
-@Register(AUTH_SERVICE_ID, [ OTHER_SERVICE_ID ])
+@Register(AUTH_SERVICE_ID, [ CREDENTIALS_SERVICE_ID ])
 export default class AuthService {
-  constructor(otherService) {
-    this.otherService = otherService;
+  constructor(credentialsService) {
+    this.credentialsService = credentialsService;
   }
 
   login (username, password) {
-    username = otherService.doSomething(username);
+    username = this.credentialsService.sanitize(username);
+    password = this.credentialsService.sanitize(password);
     // do something else
   }
 }
 ```
-DI will ensure that the otherService will be instantiated first, using `OTHER_SERVICE_ID` to locate the constructor.
+DI will ensure that the credentialsService will be instantiated first, using `CREDENTIALS_SERVICE_ID` to locate the constructor.
 Check out documentation for [inversify-vanillajs-helpers](https://github.com/inversify/inversify-vanillajs-helpers#usage) to see all possibilities
 
 ### @LazyInject decorator
@@ -381,8 +383,222 @@ class LoginView extends Vue {
 
 ## Testing using Dependency Injection
 
-TODO
-* mock service in component tests
-* mock the other service in service tests
-* mock window.location
-* mock store in the router
+### Mocking service dependencies
+
+Let's have a service which depends on other services. Before we even start writing tests, make sure that the dependency is really needed. Huge dependency trees are always hard to test and to maintain because of the complexity. You can try to decouple the services and separate their logic. If it's not possible, then you should always mock other services out. Consider following services:
+```js
+class ServiceA {
+  constructor(serviceB, serviceC) {}
+}
+
+class ServiceB {
+  constructor(serviceD) {}
+}
+
+class ServiceC {
+  constructor(serviceE) {}
+}
+
+class ServiceD {}
+
+class ServiceE {
+  constructor(serviceD) {}
+}
+```
+How can we test ServiceA with all these dependencies? Let's do a naive approach first:
+```js
+describe('Service A', function () {
+  beforeEach(function () {
+    let serviceD = new ServiceD();
+    let serviceE = new ServiceE(serviceD);
+    let serviceB = new ServiceB(serviceD);
+    let serviceC = new ServiceC(serviceE);
+    let serviceA = new ServiceA(serviceB, serviceC);
+  });
+
+  it('should do something', function () {
+    // test logic using serviceA
+  });
+});
+```
+A couple of issues here:
+1. You have to be aware of service instantiation order, `serviceD` must be created before `serviceE` and `serviceB`, `serviceE` before `serviceC` and once you have all dependencies ready, you can finally call the constructor of `ServiceA`. If dependency tree changes, you have to adjust all tests.
+1. Every time new service is added to the tree, you have to update the tests too.
+
+When you want to mock any service in the tree, consider using a fake object with stub methods instead of calling a real constructor. If you are using [sinon](https://www.npmjs.com/package/sinon), check out their [mock API](http://sinonjs.org/releases/v4.5.0/mocks/) which enables lots of nice features and gives you better control over your mocked services.
+```js
+describe('Service A', function () {
+  beforeEach(function () {
+    let serviceD = {}; // instead of using real ServiceD constructor, create an empty object and fake all methods that are used from serviceA
+    serviceD.doSomething = sinon.spy();
+    this.serviceDMock = serviceD;
+
+    let serviceE = new ServiceE(serviceD);
+    let serviceB = new ServiceB(serviceD);
+    let serviceC = new ServiceC(serviceE);
+    let serviceA = new ServiceA(serviceB, serviceC);
+
+    this.serviceBMock = sinon.mock(serviceB); // mock serviceB using sinon.mock API. this will create Proxy object which you can configure to expect calls on serviceB instance.
+  });
+
+  afterEach(function () {
+    this.serviceBMock.verify(); // verify all expectations have been called
+  });
+
+  it('should do something', function () {
+    let doSomethingSpy = this.serviceBMock.expects('doSomething').returns(42).once();
+    let result = serviceA.runMethodUnderTest(24); // let's assume that this method calls serviceB and serviceD
+    expect(result).to.equal(66);
+    expect(doSomethingSpy).to.have.been.calledWith(24);
+    expect(this.serviceDMock.doSomething).to.have.been.calledWith(24);
+  });
+});
+```
+
+Now, let's do better approach and let DI container to resolve our dependencies.
+```js
+import { Register } from './di';
+
+@Register('serviceA', ['serviceB', 'serviceC'])
+class ServiceA {
+  constructor(serviceB, serviceC) {}
+}
+
+@Register('serviceB', ['serviceD'])
+class ServiceB {
+  constructor(serviceD) {}
+}
+
+@Register('serviceC', ['serviceE'])
+class ServiceC {
+  constructor(serviceE) {}
+}
+
+@Register('serviceD')
+class ServiceD {}
+
+@Register('serviceE', ['serviceD'])
+class ServiceE {
+  constructor(serviceD) {}
+}
+```
+... and then in spec file you can just type
+```js
+import container from './di';
+
+describe('Service A', function () {
+  beforeEach(function () {
+    let serviceA = container.get('serviceA');
+  });
+});
+```
+
+It's much nicer now, but wait, the mocking ability is now gone. How can `serviceC` can be mocked during execution of these tests? The service registration in DI container can be replaced with our own mock.
+```js
+import container from './di';
+
+describe('Service A', function () {
+  beforeEach(function () {
+    let serviceC = container.get('serviceC');
+    this.serviceCMock = sinon.mock(serviceC);
+    container.rebind('serviceC').toConstantValue(serviceC); // removes old registered class and replaces it with singleton constant value
+    let serviceA = container.get('serviceA');
+  });
+
+  afterEach(function () {
+    this.serviceCMock.verify(); // verify all expectations have been called
+  });
+
+  it('should do something', function () {
+    let doSomethingSpy = this.serviceCMock.expects('doSomething').returns(42).once();
+    let result = serviceA.runMethodUnderTest(24); // let's assume that this method calls serviceC
+    expect(result).to.equal(66);
+    expect(doSomethingSpy).to.have.been.calledWith(24);
+  });
+});
+```
+Everything that test changes in the container registration should be restored after the test is done, otherwise, changes might affect the following test. You can achieve this by using built-in functionality in inversify called [snapshots](https://github.com/inversify/InversifyJS/blob/master/wiki/container_snapshots.md). Create a snapshot before you perform changes to registration and restore it back to normal after your test is done.
+
+```js
+import container from './di';
+
+describe('Service A', function () {
+  beforeEach(function () {
+    container.snapshot();
+    // ...
+    container.rebind('serviceC').toConstantValue(serviceC);
+    //
+  });
+
+  afterEach(function () {
+    container.restore();
+  });
+});
+```
+You can move this calls to the global scope of the test to avoid repetition in your code.
+```js
+// globals.js
+import container from '@di';
+
+beforeEach(function () {
+  container.snapshot();
+});
+
+afterEach(function () {
+  container.restore();
+});
+```
+... and then use this file when running mocha
+```json
+// package.json
+{
+  "test": "vue-cli-service test src/**/*.spec.js --include ./test/unit/globals.js",
+}
+```
+If you are using `--watch` mode, files included are not executed after any change, so the better solution is to import this file at the top of your spec file instead.
+
+### Mocking global objects
+
+Testing a functionality which requires global objects (`window.location` or `setTimeout`) is always a challenge. `window.location` is property which cannot be overridden but many tests require this property to be mocked. If you have a component which sets `window.location.href = 'some/new/url';`, then this code must be avoided in the tests, otherwise, it might break your current test execution (especially if you are running tests in the browser, e.g. with [karma-runner](https://www.npmjs.com/package/karma)). Dependency Injection can actually sort out this problem because we can inject the global object into your component and then control what is injected into a component in your tests.
+```js
+// di.js
+export const WINDOW_ID = Symbol('window');
+container.bind(WINDOW_ID).toConstantValue(window);
+
+// my-components.js
+import Vue from 'vue';
+import { LazyInject, WINDOW_ID } from './di';
+
+export default class MyComponent extends Vue {
+  @LazyInject(WINDOW_ID) window; // uses real window in PROD build, but can be mocked object in tests
+
+  onClick() {
+    this.window.location.href = 'some/new/url';
+  }
+}
+```
+... and your tests:
+```js
+// my-component.spec.js
+import container { WINDOW_ID } from './di';
+
+beforeEach(function () {
+  container.snapshot();
+
+  this.windowMock = { location: { href: '' } };
+
+  container.rebind(WINDOW_ID).toConstantValue(this.windowMock);
+});
+
+afterEach(function () {
+  container.verify();
+});
+
+it('should navigate to new url', function () {
+  let myComponent = mount(MyComponent); // LazyInject in the component will inject windowMock instead of real window object
+  myComponent.onClick(); // this call now operates with windowMock, so no real navigation happens in the browser
+
+  expect(this.windowMock.location.href).to.equal('some/new/url'); // assert correct URL has been set
+});
+
+```

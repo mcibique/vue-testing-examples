@@ -591,7 +591,7 @@ beforeEach(function () {
 });
 
 afterEach(function () {
-  container.verify();
+  container.restore();
 });
 
 it('should navigate to new url', function () {

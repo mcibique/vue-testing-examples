@@ -410,7 +410,7 @@ export { register as Register } // we are exporting decorator with capital R bec
 
 ... so they can be accessed anywhere in the code:
 ```js
-import { Register } from '@di';
+import { Register } from './di';
 import { CREDENTIALS_SERVICE_ID } from './credentials';
 
 export const AUTH_SERVICE_ID = Symbol('authService');
@@ -444,7 +444,7 @@ export { lazyInject as LazyInject }
 ```
 Now we can adjust code in VUE component:
 ```js
-import { LazyInject } from '@di';
+import { LazyInject } from './di';
 import { AUTH_SERVICE_ID } from './services/auth';
 
 class LoginView extends Vue {
@@ -690,7 +690,7 @@ describe('Service A', function () {
 You can move this calls to the global scope of the test to avoid repetition in your code.
 ```js
 // globals.js
-import container from '@di';
+import container from './di';
 
 beforeEach(function () {
   container.snapshot();
@@ -761,7 +761,7 @@ Local development usually requires working back-end services (API) to be running
 Instead of building your own express server, webpack offers another nice solution how to create stubs for your services. Let's have an `AuthService` which communicates with real back-end API:
 ```js
 import axios from 'axios';
-import { Register } from '@di';
+import { Register } from './di';
 
 export const AUTH_SERVICE_ID = Symbol('authService');
 
@@ -818,7 +818,7 @@ npm run serve --stub
 import axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';
 
-import { Override } from '@di';
+import { Override } from './di';
 import AuthService, { AUTH_SERVICE_ID } from './auth.js'; // always use '.js' extension otherwise this module will be required.
 
 export { AUTH_SERVICE_ID };

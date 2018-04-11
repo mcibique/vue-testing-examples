@@ -23,7 +23,7 @@ Provide examples for
 Issues:
 * !!! `trigger("click")` on `<button type="submit">` doesn't trigger submit on form. !!!
 
-# Test pyramid, dumb vs smart components, mount vs shallow
+# Testing pyramid, dumb vs smart components, mount vs shallow
 
 If you are not familiar with [testing pyramid](https://martinfowler.com/articles/practical-test-pyramid.html), check out the article about it written by [Martin Fowler](https://martinfowler.com/). Usually, writing unit tests for VUE app is not enough, especially if you have a component with lots of logic and lots of dependencies, you would like to test it together. You can try to do that in E2E tests, but E2E tests should be running against fully working and fully configured system with DB, all back-end services and without any mocks. You need something in the middle, something which integrates a couple of components together but mocks API calls and can execute it in a reasonable time (usually E2E tests takes from 5 mins up to 5 hours) - you need integration tests. The app which docs you are reading now is using following rules to determine which type of tests, how and what should be tested. They are very different if you are testing [smart or dumb components](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0).
 ## Dumb components
@@ -337,11 +337,68 @@ class LoginView extends Vue {
 }
 ```
 
+Check out the inversify [docs](https://github.com/inversify/InversifyJS/blob/master/wiki/symbols_as_id.md) for more.
+
 ## Using decorators
 Decorators can help us to eliminate lots of code repetition and make our code cleaner.
 
 ### @Register decorator
-`inversify-vanillajs-helpers` can create Register helper which can be used as a decorator anywhere in our code. Let's add this code to `di.js`:
+The @Register() decorator is just a syntactic sugar for registering classes to the container. In Typescript, you would have `@injectable` and `@inject` decorators available, but this project is not using TS, it's plain JS. The maintainers of InversifyJS have provided another set of decorators/helpers called [inversify-vanillajs-helpers](https://github.com/inversify/inversify-vanillajs-helpers), for using inversify without TS. They just need a unique identifier for each registered class, because they cannot tell what parameter in constructor belongs to which registered class.
+
+Let's have classes defined as:
+```js
+class C {}
+
+class B {
+  constructor(c) {
+    this.c = c;
+  }
+}
+
+class A {
+  constructor(b, c) {
+    this.b = b;
+    this.c = c;
+  }
+}
+```
+You can register all classes to the container and give each class unique identifier.
+```js
+container.bind("c").to(C);
+container.bind("b").to(B);
+container.bind("a").to(A);
+
+let c = container.get("c");
+console.log(c instanceof C); // true
+```
+Unfortunately, this is not enough for `B` and `A`. When you ask in the code `container.get("A")`, the container will try to instantiate A but there are 2 unknown parameters `b` and `c` in the constructor. We need to tell the container, that for parameter `b`, use class registered with key `"b"` and for `c`, use class with key `"c"`. This can be done this way:
+```js
+inversify.decorate(inversify.injectable(), A);
+inversify.decorate(inversify.inject("b"), B, 0);
+inversify.decorate(inversify.inject("c"), C, 1);
+container.bind("a").to(A);
+```
+In TS, this is done by `@injectable` and `@inject` decorators automatically. Doing this for every class in your project would be annoying, so let's use rather a vanillajs helper:
+```js
+let register = helpers.register(container);
+register("a", ["b", "c"])(A);
+```
+^^ this helper called `register` is now coupled with the container and does exactly the same thing as a previous example. And the helper can also be used as a decorator:
+```js
+@register("a", ["b", "c"])
+class A {
+  constructor(b, c) {}
+}
+```
+... is equivalent of calling:
+```js
+register("a", ["b", "c"])(
+class A {
+  constructor(b, c) {}
+});
+```
+
+In this project, the decorators are defined in `di.js`:
 ```js
 import { helpers } from 'inversify-vanillajs-helpers';
 
@@ -351,22 +408,7 @@ let register = helpers.register(container);
 export { register as Register } // we are exporting decorator with capital R because other decorators we are already using (e.g. for Vuex) also have a capital letter
 ```
 
-... and then use it:
-```js
-import { Register } from '@di';
-
-export const AUTH_SERVICE_ID = Symbol('authService');
-
-@Register(AUTH_SERVICE_ID)
-export default class AuthService {
-  login (username, password) {
-    // do something
-  }
-}
-
-```
-
-If your service depends on other services, you can pass array of IDs as a second parameter:
+... so they can be accessed anywhere in the code:
 ```js
 import { Register } from '@di';
 import { CREDENTIALS_SERVICE_ID } from './credentials';
@@ -390,7 +432,8 @@ DI will ensure that the credentialsService will be instantiated first, using `CR
 Check out documentation for [inversify-vanillajs-helpers](https://github.com/inversify/inversify-vanillajs-helpers#usage) to see all possibilities
 
 ### @LazyInject decorator
-We can improve injection in our VUE components too, by using LazyInject decorators from [inversify-inject-decorators](https://github.com/inversify/inversify-inject-decorators). Let's create it and export it in `di.js` first:
+
+The LazyInject decorator can be very useful for injecting services into the VUE components. Because we don't have control over instantiating of the component, we need to inject services into properties. Let's import the decorator from [inversify-inject-decorators](https://github.com/inversify/inversify-inject-decorators) and make it available in `di.js` first:
 ```js
 import getDecorators from 'inversify-inject-decorators';
 
@@ -414,6 +457,81 @@ class LoginView extends Vue {
 ```
 `LazyInject` caches the instance of `authService` until the component is destroyed. Check out the documentation for [inversify-inject-decorators](https://github.com/inversify/inversify-inject-decorators#basic-property-lazy-injection-with-lazyinject) to see more options and other decorators.
 
+## Why Dependency Injection?
+
+### 1. Mocking behavior in development
+
+Let's say that you have email service which sends email to given address, but you don't want to send real emails in dev/tst/uat environments. You can have two different implementations of the same interface and register them conditionally:
+```js
+class RealEmailService {
+  sendEmail(from, to, body) {
+    // send the email
+    return true; // or false if sending failed
+  }
+}
+
+class FakeEmailService {
+  sendEmail(from, to, body) {
+    console.log(`Sending email from ${from} to ${to} with body ${body} skipped.`)
+    return true; // always return true
+  }
+}
+
+// config.js
+if (process.env.NODE_ENV === "production") {
+  container.bind("emailService").to(RealEmailService);
+} else {
+  container.bind("emailService").to(FakeEmailService);
+}
+
+@Register("orderService", ["emailService"])
+class OrderService {
+  constructor(emailService) {
+    this.emailService = emailService; // this would be real implementation in prod, but fake in other environments
+  }
+
+  registerOrder(order) {
+    // ...
+    this.emailService.sendEmail("system", order.emailAddress, `Order ${order.number} has been sent.`);
+    // ...
+  }
+}
+```
+
+### 2. Swapping dependencies in the runtime based on a configuration and other flags
+
+DI containers often support named bindings, which allows registering multiple classes to one key. See also the [docs](https://github.com/inversify/InversifyJS/blob/master/wiki/named_bindings.md) about named bindings.
+
+```js
+class VIPDiscountService {
+  getDiscount() {
+    return 10;
+  }
+}
+
+class RegularDiscountService {
+  getDiscount() {
+    return 5;
+  }
+}
+
+container.bind("discountService").to(VIPDiscountService).whenTargetNamed("VIP");
+container.bind("discountService").to(RegularDiscountService).whenTargetNamed("Regular");
+
+@Register("orderService")
+class OrderService {
+  registerOrder(order) {
+    // ...
+    let customerType = order.customer.isVIP ? "VIP" : "Regular";
+    let discountService = container.getNamed("discountService", customerType);
+    let discount = discountService.getDiscount();
+    // ...
+  }
+}
+```
+
+### 3. Mocking in unit tests
+Replacing registered classes allows you to control dependencies of the service under test. See next chapter [Testing using Dependency Injection](#testing-using-dependency-injection)
 
 ## Testing using Dependency Injection
 

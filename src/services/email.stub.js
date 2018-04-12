@@ -8,7 +8,7 @@ export { EMAIL_SERVICE_ID };
 
 @Override(EMAIL_SERVICE_ID)
 export default class EmailStubService extends EmailService {
-  getEmails() {
+  getEmails () {
     let axiosMock = new AxiosMockAdapter(axios);
     axiosMock.onGet('/api/emails').replyOnce(200, [{
       id: 1,

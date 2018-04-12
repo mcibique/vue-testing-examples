@@ -83,7 +83,7 @@ export class VueDI {
 }
 
 if (process.env.NODE_ENV === 'test') {
-  function init() {
+  (function init () {
     container.rebind(TIMEOUT_ID).toDynamicValue(function ({ container }) {
       let globalMock = {};
       let clock = require('lolex').install({ target: globalMock, toFake: ['setTimeout', 'clearTimeout'] });
@@ -95,11 +95,8 @@ if (process.env.NODE_ENV === 'test') {
       timeout.cancel = cancel;
       timeout.restore = function () {
         init();
-      }
+      };
       return timeout;
-
     }).inSingletonScope();
-  }
-
-  init();
+  })();
 }

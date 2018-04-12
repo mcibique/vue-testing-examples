@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import MyButton from '@/components/MyButton.vue';
-import MyButttonPageObj from '@/components/MyButton.vue.po';
+import MyButtonPageObj from '@/components/MyButton.vue.po';
 
 describe('MyButton component', function () {
   beforeEach(function () {
@@ -12,7 +12,7 @@ describe('MyButton component', function () {
 
     this.mountMyButton = function (options) {
       let wrapper = mount(MyButton, { localVue: this.localVue, ...options });
-      return new MyButttonPageObj(wrapper);
+      return new MyButtonPageObj(wrapper);
     };
   });
 
@@ -23,11 +23,11 @@ describe('MyButton component', function () {
 
   it('should render given slot', function () {
     let contentText = 'Random text';
-    let slots = { default: `<strong>${contentText}</strong>` };
+    let slots = { default: `<strong tid="slot-content">${contentText}</strong>` };
     let myButton = this.mountMyButton({ slots });
 
     expect(myButton.text(), 'Text from slot was not rendered').to.equal(contentText);
-    expect(myButton.wrapper.find('strong').exists(), 'The DOM structure was not preserved in the given slot').to.be.true;
+    expect(myButton.wrapper.tid('slot-content').exists(), 'The DOM structure was not preserved in the given slot').to.be.true;
   });
 
   it('should make button primary', function () {

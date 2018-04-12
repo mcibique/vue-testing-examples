@@ -7,10 +7,10 @@ To document:
 1. Testing navigation guards
 1. Testing filter
 1. Testing directive
+1. Writing complex integration test for a component
 1. Mocking vuex
 1. Mocking router
 1. Inversify and mocking router/store in tests
-1. lolex example with time forwarding
 1. mock store in the router
 
 Introduce the dev stack:
@@ -25,12 +25,18 @@ Issues:
 
 # Testing pyramid, dumb vs smart components, mount vs shallow
 
-If you are not familiar with [testing pyramid](https://martinfowler.com/articles/practical-test-pyramid.html), check out the article about it written by [Martin Fowler](https://martinfowler.com/). Usually, writing unit tests for VUE app is not enough, especially if you have a component with lots of logic and lots of dependencies, you would like to test it together. You can try to do that in E2E tests, but E2E tests should be running against fully working and fully configured system with DB, all back-end services and without any mocks. You need something in the middle, something which integrates a couple of components together but mocks API calls and can execute it in a reasonable time (usually E2E tests takes from 5 mins up to 5 hours) - you need integration tests. The app which docs you are reading now is using following rules to determine which type of tests, how and what should be tested. They are very different if you are testing [smart or dumb components](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0).
+If you are not familiar with [testing pyramid](https://martinfowler.com/articles/practical-test-pyramid.html), check out the article about it written by [Martin Fowler](https://martinfowler.com/). Usually, only writing unit tests for a VUE app is not enough, especially if you have a component with lots of logic and lots of dependencies. It would be better to test it together. You can try to do that in E2E tests, but E2E tests should be running against fully working and fully configured system with DB, all back-end services and without any mocks. That's very hard to achieve locally, and if you want to test all edge cases, E2E tests can take hours to run. Usually, E2E tests run after your changes were merged to master branch and were fully tested by your QA and were integrated by your CI process. It's not too late to spot the bugs here, but it delays delivery of your product because bug must be fixed first and go through PR, QA and CI again.
+
+Integration tests are a much better solution for this. These tests can integrate a couple of components together and allows you to mock API calls, so you can easily simulate all edge cases which you cannot achieve in E2E tests. Integration tests are also much faster than E2E because they don't fully load the app and don't rely on the network.
+
+You should still keep writing E2E tests, but rather testing every edge case, test only a [happy path](https://en.wikipedia.org/wiki/Happy_path) and common errors (like validation errors), and put all possible scenarios to the integration tests.
+
+The app which docs you are reading now is using following rules to determine whether to use unit or integration tests and what should be tested or mocked out. The main difference is whether you are testing [smart or dumb components](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0).
 ## Dumb components
-A dumb component should never be aware of its parent and children, all data to display should be given from props. The component should not perform any operation in store, should not navigate to different routes and should not perform any API calls. The only test we can do is unit test, using only shallow rendering.
+A dumb component should never be aware of its parent and children, all data to display should be coming from props. The component should not perform any operation in store, should not navigate to different routes and should not perform any API calls. The only test we can do is a unit test, using only shallow rendering.
 
 ## Smart components
-A smart component is responsible for loading data (from API or store), interacting with the store, passing props down and waiting for events from children, thus the component should be tested using integration test and be aware of its children during the tests. For that, we should always be using `mount` instead of `shallow` rendering. We should mock out only a necessary minimum from the component. Store and router should be used without mocking, so we can test actions dispatched by the component. The only thing to mock is back-end API. If API can return multiple HTTP Codes (200, 302, 400, 401, 403, 404, 412), test all possibilities here, because it's cheap with mocked API. Later, in E2E tests, test only a [happy path](https://en.wikipedia.org/wiki/Happy_path) (200).
+A smart component is responsible for loading data (from API or store), interacting with the store, passing props down and waiting for events from children, thus the component should be tested using integration test and be aware of its children during the tests. For that, we should always be using `mount` instead of `shallow` rendering. We should mock out only a necessary minimum from the component. Store and router should be used without mocking, so we can test actions dispatched by the component. The only thing to mock is back-end API. If API can return multiple HTTP Codes (200, 302, 400, 401, 403, 404, 412), test all possibilities here, because it's cheap with mocked API. Later, in E2E tests, test only a happy path (200) and validation errors (400).
 
 We should focus on testing as much as possible here because [the less we are mocking we get more confidence in our code](https://twitter.com/kentcdodds/status/977018512689455106).
 
@@ -711,7 +717,7 @@ If you are using `--watch` mode, files included are not executed after any chang
 
 ### Mocking global objects
 
-Testing a functionality which requires global objects (`window.location` or `setTimeout`) is always a challenge. `window.location` is property which cannot be overridden but many tests require this property to be mocked. If you have a component which sets `window.location.href = 'some/new/url';`, then this code must be avoided in the tests, otherwise, it might break your current test execution (especially if you are running tests in the browser, e.g. with [karma-runner](https://www.npmjs.com/package/karma)). Dependency Injection can actually sort out this problem because we can inject the global object into your component and then control what is injected into a component in your tests.
+Testing a functionality which requires global objects (`window.location` or `setTimeout`) is always a challenge. `window.location` is property which cannot be overridden but many tests require this property to be mocked. If you have a component which sets `window.location.href = 'some/new/url';`, then this code must be avoided in the tests, otherwise, it might break your current test execution (especially if you are running tests in the browser, e.g. with [karma-runner](https://www.npmjs.com/package/karma)). Dependency Injection can actually sort out this problem because we can inject the global object into your component and then we can pass custom object, with no restrictions, into a component in your tests.
 ```js
 // di.js
 export const WINDOW_ID = Symbol('window');
@@ -752,6 +758,113 @@ it('should navigate to new url', function () {
 
   expect(this.windowMock.location.href).to.equal('some/new/url'); // assert correct URL has been set
 });
+```
+
+# Time travelling and testing setTimeout
+There are several ways how to test `setTimeout` functions in your code. For all solutions, we are going to use LoginView component which displays some helpful links after 5s. Please don't judge the UX, it's for demonstration purposes:
+```js
+class LoginView extends Vue {
+  displayHelp = false;
+
+  created () {
+    setTimeout(() => {
+      this.displayHelp = true;
+    }, 5000);
+  }
+}
+```
+What we need to test:
+1. The initial status of the component (displaying help links should be off)
+2. Time travel to 2s after the component was created (check help links are still not being displayed)
+3. Time travel beyond 5s after the component was created (check help links are finally being displayed)
+
+Let's start with easiest, but not very robust test solution:
+```js
+import { expect } from 'chai';
+import sinon from 'sinon';
+
+beforeEach(function () {
+  this.originalSetTimeout = window.setTimeout;
+  window.setTimeout = sinon.stub();
+});
+
+afterEach(function () {
+  window.setTimeout = this.originalSetTimeout; // restore original setTimeout
+});
+
+it('should not display help links when a component was just created', function () {
+  let wrapper = mount(LoginView);
+  expect(wrapper.vm.displayHelp).to.be.false;
+});
+
+it('should display help links only after 5s', function () {
+  let wrapper = mount(LoginView);
+  expect(window.setTimeout).to.have.been.calledWith(sinon.match.any, 5000);
+});
+```
+Simple, huh? Yes, it technically does test what was specified, but it's not very convincing. We did lots of shortcuts and we actually never checked whether displayHelp became true or not. The callback in `setTimeout` is part of the component's logic but it wasn't called at all. What if there is a logic somewhere in the code which cancels the timeout? We also cannot check what is the state after 2s. Let's add a little more logic to our test:
+```js
+it('should display help links only after 5s', function () {
+  window.setTimeout = sinon.stub().callsFake(fn => fn()); // any function that is passed to setTimeout is immediately executed
+
+  let wrapper = mount(LoginView);
+  expect(window.setTimeout).to.have.been.calledWith(sinon.match.any, 5000);
+  expect(wrapper.vm.displayHelp).to.be.true;
+});
+```
+This time callback is executed and our flag is set to true, but we created another problem. The callback is executed synchronously instead. That changes the order of execution which means we are not testing how code runs in production. And we still cannot test a state of our component after 2s and we are still unsure about timeout cancellation. Let's involve library which was built-in for this and has better control over `setTimeout` and it's execution: [lolex](https://github.com/sinonjs/lolex). Lolex has an API which can mock setTimeout and allows us to jump in time by 100ms, by 1s, by 1 day while our test is still executing a synchronous way (that means the test execution is not paused for 2s).
+```js
+import { expect } from 'chai';
+import lolex from 'lolex';
+
+beforeEach(function () {
+  this.clock = lolex.install(window); // this mocks window.setTimeout with lolex implementation
+});
+
+afterEach(function () {
+  this.clock.uninstall(); // restore original setTimeout
+});
+
+it('should not display help links when a component was just created', function () {
+  let wrapper = mount(LoginView);
+  expect(wrapper.vm.displayHelp).to.be.false;
+});
+
+it('should not display help links before 5s elapsed', function () {
+  let wrapper = mount(LoginView);
+
+  this.clock.tick(2000);
+  expect(wrapper.vm.displayHelp).to.be.false;
+
+  this.clock.tick(2000);
+  expect(wrapper.vm.displayHelp).to.be.false;
+
+  this.clock.tick(2000); // this is the moment when callback is finally executing
+  expect(wrapper.vm.displayHelp).to.be.true;
+});
+```
+It's looking really nice now. The clock was able to move our test 2s ahead, check the state, move another 2s, check, move another 2s and do a final check. The callback was executed after multiple calls to `this.clock.tick()` and not synchronously during `created()` lifecycle event. Lolex also supports mocking of other global functions manipulating time, see their [API reference](https://github.com/sinonjs/lolex#api-reference).
+Lolex is also capable to work with mocked global objects. Let's consider a scenario from [Mocking global objects](#mocking-global-objects):
+```js
+import { expect } from 'chai';
+import lolex from 'lolex';
+
+import container { WINDOW_ID } from './di';
+
+beforeEach(function () {
+  container.snapshot();
+
+  let windowMock = {};
+  this.clock = lolex.install({ target: windowMock, toFake: ['setTimeout', 'clearTimeout'] }); // only fake timeout methods, don't waste time on other functions
+  container.rebind(WINDOW_ID).toConstantValue(windowMock);
+});
+
+afterEach(function () {
+  container.restore();
+  this.clock.uninstall();
+});
+
+// ...
 ```
 
 # Using stub services in dev mode
@@ -840,3 +953,7 @@ export default class AuthServiceStub extends AuthService {
 
 ### Don'ts
 * If you are inheriting classes, don't forget to always call `super()` methods.
+
+# Using flush-promises vs Vue.nextTick()
+
+This topic has been fully covered by [the official documentation](https://vue-test-utils.vuejs.org/en/guides/testing-async-components.html).

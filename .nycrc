@@ -1,0 +1,18 @@
+{
+  "include": [
+    "src/**/*.(js|vue)"
+  ],
+  "exclude": [
+    "src/**/*.spec.js",
+    "src/**/*.po.js",
+    "src/**/*.stub.js"
+  ],
+  "instrument": false,
+  "sourceMap": false,
+  "reporter": [
+    "html",
+    "text"
+  ],
+  "report-dir": "./test/reports",
+  "tempDirectory": "./test/reports/.nyc_output"
+}

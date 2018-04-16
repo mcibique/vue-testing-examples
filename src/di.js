@@ -7,6 +7,7 @@ let { lazyInject } = getDecorators(container);
 let register = helpers.register(container);
 let registerConstantValue = helpers.registerConstantValue(container);
 
+/* istanbul ignore next */
 function override (identifier, dependencies, constraint) {
   return function (constructor) {
     helpers.annotate(constructor, dependencies);
@@ -20,6 +21,7 @@ function override (identifier, dependencies, constraint) {
   };
 };
 
+/* istanbul ignore next */
 function overrideWithConstantValue (identifier, newConstantValue) {
   if (container.isBound(identifier)) {
     container.unbind(identifier);

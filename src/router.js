@@ -6,11 +6,11 @@ import { STORE_ID } from './store';
 import Login from './views/Login.vue';
 import About from './views/About.vue';
 
-export function createRouter (vueInstance = Vue, store = container.get(STORE_ID)) {
+export function createRouter (/* istanbul ignore next */ vueInstance = Vue, store = container.get(STORE_ID)) {
   vueInstance.use(VueRouter);
 
   let router = new VueRouter({
-    mode: process.env.NODE_ENV === 'test' ? 'abstract' : 'history',
+    mode: /* istanbul ignore next */ process.env.NODE_ENV === 'test' ? 'abstract' : 'history',
     routes: [
       {
         path: '/login',

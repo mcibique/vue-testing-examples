@@ -9,6 +9,12 @@ describe('fullName filter', function () {
     });
   });
 
+  describe('when empty object is provided', function () {
+    it('should return empty string', function () {
+      expect(fullName({})).to.equal('');
+    });
+  });
+
   describe('when only first name is provided', function () {
     it('should return only first name', function () {
       expect(fullName({ firstName: 'random_first_name' })).to.equal('random_first_name');

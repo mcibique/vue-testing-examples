@@ -3,7 +3,7 @@ import Vuex from 'vuex';
 
 import createAuthModule from './auth';
 
-export function createStore (vueInstance = Vue) {
+export function createStore (/* istanbul ignore next */ vueInstance = Vue) {
   vueInstance.use(Vuex);
 
   return new Vuex.Store({

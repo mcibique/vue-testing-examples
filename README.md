@@ -8,10 +8,9 @@ To document:
 1. Testing filter
 1. Testing directive
 1. Writing complex integration test for a component
-1. Mocking vuex
 1. Mocking router
 1. Inversify and mocking router/store in tests
-1. mock store in the router
+1. Test coverage
 
 Introduce the dev stack:
 * vue, vuex, vue-router, vue-property-decorator, vuex-class, axios, lodash, inversify (vanilla js solution), sinon, mocha, sinon-chai, sinon-stub-promise flush-promises, lolex
@@ -19,6 +18,8 @@ Introduce the dev stack:
 Provide examples for
 * ??? testing mutations, actions ???
 * ??? testing `router.push()` to the route with async component using `import()` ???
+* ??? broken test coverage (100% coverage but still not taking all paths: https://twitter.com/getify/status/955939257755021312) ???
+* ??? 100% test coverage without need to test everything (https://labs.ig.com/code-coverage-100-percent-tragedy) ???
 
 Issues:
 * !!! `trigger("click")` on `<button type="submit">` doesn't trigger submit on form. !!!
@@ -953,6 +954,217 @@ export default class AuthServiceStub extends AuthService {
 
 ### Don'ts
 * If you are inheriting classes, don't forget to always call `super()` methods.
+
+# Mocking store (Vuex)
+
+## Mocking store for a smart component
+Usually smart component uses a store to access and to update the application state. This brings dependencies and coupling which should be mocked out during tests. Unfortunately, that's not easy to do because a component's logic often depends on a logic in the store. If you want to mock it, then your mocks will end up with duplicating the logic of the store in your tests one to one. To keep things DRY, it's easier to test smart component with real store implementation (real actions, mutations and getters). If your actions are calling back-end API (they often do), this is necessary to be mocked. Let's check this out in following scenario.
+
+The component below is using the store to persist a message. The message is also displayed in the title of the component, so it must be retrieved every time it changes.
+```html
+<template>
+  <h1>{{ message }}</h1>
+  <input type="text" v-model="newMessage">
+</template>
+```
+```js
+import Vue from 'vue';
+import { Component } from 'vue-property-decorator';
+import { State } from 'vuex-class';
+
+@Component
+class MyComponent extends Vue {
+  @State("message") message;
+
+  get newMessage() {
+    return this.message;
+  }
+
+  set newMessage(value) {
+    this.$store.dispatch('updateMessage', { message: value });
+  }
+}
+```
+The store is defined:
+```js
+import Vue from 'vue';
+import Vuex, { Store } from 'vuex';
+
+Vue.use(Vuex);
+
+export default new Store({
+  state: {
+    message: 'Welcome'
+  },
+  actions: {
+    updateMessage({ commit }, payload) {
+      commit('updateMessage', payload);
+    }
+  },
+  mutations: {
+    updateMessage(state, { message }) {
+      state.message = message || '';
+    }
+  }
+});
+```
+What needs to be tested in the component?
+```js
+describe('MyComponent', function () {
+  it('should display the default Welcome message in the title'); // A
+  it('should fill the default Welcome message into the input'); // B
+  describe('when a user types new message', function () {
+    it('should store new message in the store'); // C
+    it('should update the title with the new message'); // D
+  });
+});
+```
+Let's give a shot to the mocked store:
+```js
+import { mount } from '@vue/test-utils';
+
+beforeEach(function () {
+  let actions = this.actions = {
+    updateMessage: sinon.stub()
+  };
+
+  this.store = new Store({
+    state: { message: 'Welcome' },
+    actions
+  });
+
+  this.myComponent = mount(MyComponent, { store: this.store });
+});
+```
+Testing cases `A` and `B` is easy, we just need to check what has been rendered. Testing C can be achieved by checking `expect(this.actions.updateMessage).to.have.been.calledWith('updateMessage', { message: 'newValue' })`. What about the case `D`? We have an option to drop it because we tested that the component is able to read from a store (in `A` and `B`) and fires an action on update (in `C`). This is considered as true unit test approach and it might be enough, on the other hand, tests never test it as a whole (they are covering the scenario but only indirectly). Wouldn't it be better to actually test the real behavior of the component: `When an user types something, it should update the title immediately`? It will give us much higher confidence that our component behaves as intended. Okay, let's modify the `updateMessage` stub and do following:
+```js
+beforeEach(function () {
+  let actions = this.actions = {
+    updateMessage: sinon.stub().callsFake((context, { message }) => {
+      this.store.state.message = message; // we don't have mutations available, let's modify the state directly in action.
+    });
+  };
+});
+```
+Problem solved but we basically copied the logic from the store in our test. This solution doesn't scale well for large applications, imagine doing this with much more complex component and store. Imagine if two or more smart components need the same part of the store, are we going to repeat the same set up again and again? Let's find a better way how to reuse existing store and don't repeat the logic. A naive approach would tell us just import the store, right?
+```js
+import { mount } from '@vue/test-utils';
+import store from './store';
+
+beforeEach(function () {
+  this.myComponent = mount(MyComponent, { store }); // please don't
+});
+```
+This causes a problem that the state is shared between all tests. If the first test changes `message` to something, then the second test will have this changes available. That's going against the idea that every test should start from the same position (from scratch), unaffected by the previous test. We need to create a factory which can give us brand new instance every time we need.
+```js
+import Vue from 'vue';
+import Vuex, { Store } from 'vuex';
+
+Vue.use(Vuex);
+
+export function createStore() {
+  return new Store({
+    state: {/* state props */ },
+    actions: { /* all actions */ },
+    mutations: { /* all mutations */ }
+  });
+}
+```
+```js
+import { mount } from '@vue/test-utils';
+import { createStore } from './store';
+
+beforeEach(function () {
+  this.myComponent = mount(MyComponent, { store: createStore() }); // fresh instance in every test
+});
+```
+
+We can even tweak the factory and pass the Vue as a parameter, so we can use localVue in our tests and real Vue in prod build.
+```js
+import Vue from 'vue';
+import Vuex, { Store } from 'vuex';
+
+export function createStore(vueInstance = Vue) {
+  vueInstance.use(Vuex);
+
+  return new Store({
+    state: {/* state props */ },
+    actions: { /* all actions */ },
+    mutations: { /* all mutations */ }
+  });
+}
+```
+```js
+import { mount, createLocalVue } from '@vue/test-utils';
+import { createStore } from './store';
+
+beforeEach(function () {
+  let localVue = createLocalVue();
+  this.myComponent = mount(MyComponent, { localVue, store: createStore(localVue) }); // fresh instance in every test
+});
+```
+If you have a store which uses modules, we need to create the same factory for each module, otherwise the state from modules will be reused by all tests.
+```js
+// module.js
+export function createModule() {
+  return {
+    state: {/* state props */ },
+    actions: { /* all actions */ },
+    mutations: { /* all mutations */ }
+  }
+}
+```
+```js
+// store.js
+import Vue from 'vue';
+import Vuex, { Store } from 'vuex';
+
+import { createModule } from './module';
+
+export function createStore(vueInstance = Vue) {
+  vueInstance.use(Vuex);
+
+  return new Store({
+    namespaced: true,
+    state: {/* state props */ },
+    actions: { /* all actions */ },
+    mutations: { /* all mutations */ },
+    modules: {
+      myModule: createModule()
+    }
+  });
+}
+```
+The last missing bit: If the smart component is also using a router, it is very likely that the router needs an access to the store too (usually in navigation guards). How can we give the store instance to the router? It cannot be just imported because the store is created in `beforeEach`, but it can be given via Dependency Injection:
+```js
+import container from './di';
+import { createStore, STORE_ID } from './store';
+
+beforeEach(function () {
+  this.localVue = createLocalVue();
+  this.store = createStore(this.localVue);
+  container.bind(STORE_ID).toConstantValue(this.store);
+});
+```
+Now anywhere in your code `container.get(STORE_ID)` will receive your current instance of the store created in test set up.
+```js
+import { STORE_ID } from './store';
+
+export default new VueRouter({
+  routes: [
+    {
+      path: '/logout',
+      name: 'logout',
+      beforeEnter (to, from, next) {
+        let store = container.get(STORE_ID); // will get store from currently running test
+        if (store.state.auth.token) { // can be preset by the test set up
+          store.dispatch('auth/logout'); // can be spy on whether it was called or not
+        }
+      }
+    }
+  ]
+});
+```
 
 # Using flush-promises vs Vue.nextTick()
 

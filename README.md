@@ -1046,7 +1046,7 @@ beforeEach(function () {
   };
 });
 ```
-Problem solved but we basically copied the logic from the store in our test. This solution doesn't scale well for large applications, imagine doing this with much more complex component and store. Imagine if two or more smart components need the same part of the store, are we going to repeat the same set up again and again? Let's find a better way how to reuse existing store and don't repeat the logic. A naive approach would tell us just import the store, right?
+Problem solved but we basically copied the logic from the store in our test. This solution doesn't scale well for large applications. Imagine doing this with much more complex component and store. Imagine if two or more smart components need the same part of the store. Are we going to repeat the same set up again and again? Let's find a better way how to reuse existing store and don't repeat the logic. A naive approach would tell us just try to import the store, right?
 ```js
 import { mount } from '@vue/test-utils';
 import store from './store';
@@ -1079,7 +1079,7 @@ beforeEach(function () {
 });
 ```
 
-We can even tweak the factory and pass the Vue as a parameter, so we can use localVue in our tests and real Vue in prod build.
+We can even tweak the factory and pass the Vue as a parameter, so we can use [localVue](https://vue-test-utils.vuejs.org/en/guides/common-tips.html#applying-global-plugins-and-mixins) in our tests and real Vue in prod build.
 ```js
 import Vue from 'vue';
 import Vuex, { Store } from 'vuex';
@@ -1135,7 +1135,8 @@ export function createStore(vueInstance = Vue) {
   });
 }
 ```
-The last missing bit: If the smart component is also using a router, it is very likely that the router needs an access to the store too (usually in navigation guards). How can we give the store instance to the router? It cannot be just imported because the store is created in `beforeEach`, but it can be given via Dependency Injection:
+## Mocking store for router
+If the smart component is also using a router, it is very likely that the router needs an access to the store too (usually in navigation guards). How can we give the store instance to the router? It cannot be just imported because the store is created in `beforeEach`, but it can be given via Dependency Injection:
 ```js
 import container from './di';
 import { createStore, STORE_ID } from './store';

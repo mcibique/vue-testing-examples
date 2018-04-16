@@ -2,6 +2,39 @@
 
 The documentation is still under construction.
 
+Topics already covered:
+
+- [Testing pyramid, dumb vs smart components, mount vs shallow](#testing-pyramid-dumb-vs-smart-components-mount-vs-shallow)
+  * [Dumb components](#dumb-components)
+  * [Smart components](#smart-components)
+  * [Functional components](#functional-components)
+  * [Services](#services)
+  * [Filters](#filters)
+  * [Directives](#directives)
+  * [Store](#store)
+  * [Router](#router)
+- [Mocking axios](#mocking-axios)
+- [Assert console.error() has not been called](#assert-consoleerror-has-not-been-called)
+- [Page objects pattern](#page-objects-pattern)
+- [Dependency Injection](#dependency-injection)
+  * [Setting up DI in VUE](#setting-up-di-in-vue)
+  * [Using decorators](#using-decorators)
+    + [@Register decorator](#register-decorator)
+    + [@LazyInject decorator](#lazyinject-decorator)
+  * [Why Dependency Injection?](#why-dependency-injection)
+    + [Mocking behavior in development](#1-mocking-behavior-in-development)
+    + [Swapping dependencies in the runtime based on a configuration and other flags](#2-swapping-dependencies-in-the-runtime-based-on-a-configuration-and-other-flags)
+    + [Mocking in unit tests](#3-mocking-in-unit-tests)
+  * [Testing using Dependency Injection](#testing-using-dependency-injection)
+    + [Mocking service dependencies](#mocking-service-dependencies)
+    + [Mocking global objects](#mocking-global-objects)
+- [Time travelling and testing setTimeout](#time-travelling-and-testing-settimeout)
+- [Using stub services in dev mode](#using-stub-services-in-dev-mode)
+- [Mocking store (Vuex)](#mocking-store-vuex)
+  * [Mocking store for a smart component](#mocking-store-for-a-smart-component)
+  * [Mocking store for router](#mocking-store-for-router)
+- [Using flush-promises vs Vue.nextTick()](#using-flush-promises-vs-vuenexttick)
+
 To document:
 1. Testing v-model
 1. Testing navigation guards

@@ -17,7 +17,7 @@ import { Component, Prop } from 'vue-property-decorator';
 
 @Component
 export default class WelcomeView extends Vue {
-  @Prop({ type: Array, default: [] }) emails;
+  @Prop({ type: Array, default: () => [] }) emails;
 
   get unreadEmails () {
     return this.emails.filter(e => e.unread);
@@ -30,31 +30,31 @@ export default class WelcomeView extends Vue {
 </script>
 
 <style>
-  .c-dashboard__emails-list {
-    display: block;
-    border: 1px solid #ccc;
-    padding: 0;
-  }
+.c-dashboard__emails-list {
+  display: block;
+  border: 1px solid #ccc;
+  padding: 0;
+}
 
-  .c-dashboard__email {
-    display: block;
-    padding: 1rem 2.5rem;
-  }
+.c-dashboard__email {
+  display: block;
+  padding: 1rem 2.5rem;
+}
 
-  .c-dashboard__email + .c-dashboard__email {
-    border-top: 1px solid #ccc;
-  }
+.c-dashboard__email + .c-dashboard__email {
+  border-top: 1px solid #ccc;
+}
 
-  .c-dashboard__email-subject {
-    display: block;
-    font-size: 2rem;
-  }
+.c-dashboard__email-subject {
+  display: block;
+  font-size: 2rem;
+}
 
-  .c-dashboard__email-subject--unread {
-    font-weight: bolder;
-  }
+.c-dashboard__email-subject--unread {
+  font-weight: bolder;
+}
 
-  .c-dashboard__email-sender {
-    display: block;
-  }
+.c-dashboard__email-sender {
+  display: block;
+}
 </style>

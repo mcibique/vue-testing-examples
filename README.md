@@ -1,4 +1,4 @@
-# vue-testing-examples
+# Vue testing examples
 
 The documentation is still under construction.
 

@@ -33,6 +33,7 @@ Topics already covered:
 - [Mocking store (Vuex)](#mocking-store-vuex)
   * [Mocking store for a smart component](#mocking-store-for-a-smart-component)
   * [Mocking store for router](#mocking-store-for-router)
+  * [Mocking actions, mutations and getters](#mocking-actions-mutations-and-getters)
 - [Using flush-promises vs Vue.nextTick()](#using-flush-promises-vs-vuenexttick)
 
 To document:

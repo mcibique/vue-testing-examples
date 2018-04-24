@@ -44,10 +44,15 @@ describe('Welcome view', function () {
     };
 
     // set proper route
-    this.store.commit('auth/setToken', 'random_token');
+    let isAuthenticatedStub = sinon.stub().returns(true);
+    this.store.mockGetter('auth/isAuthenticated', isAuthenticatedStub);
     this.router.push({ name: 'welcome' });
 
     return flushPromises();
+  });
+
+  afterEach(function () {
+    this.store.restore();
   });
 
   it('should enter route', function () {

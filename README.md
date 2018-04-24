@@ -1202,6 +1202,116 @@ export default new VueRouter({
 });
 ```
 
+## Mocking actions, mutations and getters
+There still can be a scenario when using real store might be a problem and you would like to mock some parts. Mocking an action can be achieved by stubbing the dispatch function provided by the store:
+```js
+beforeEach(function () {
+  let dispatchStub = sinon.stub(this.store, ['dispatch']);
+  dispatchStub.callThrough(); // allow other actions to be executed
+  dispatchStub.withArgs('auth/login').resolves(42); // only if dispatch has been invoked for 'auth/login' then return resolved Promise with custom result
+});
+
+it('should do something', function () {
+  let result = this.store.dispatch('something');
+  expect(result).to.become(/* original call result */);
+
+  result = this.store.dispatch('auth/login');
+  expect(result).to.become(42);
+});
+```
+
+Mutations are very similar to actions, but instead of dispatch, we are going to stub commit:
+```js
+beforeEach(function () {
+  let commitStub = sinon.stub(this.store, ['commit']);
+  commitStub.callThrough(); // allow other mutations to be executed
+  commitStub.withArgs('setToken').callsFake(x => x);
+});
+
+it('should do something', function () {
+  let result = this.store.commit('something');
+  expect(result).to.become(/* original call result */);
+
+  result = this.store.commit('setToken', 'random_token');
+  expect(result).to.equal('random_token');
+});
+```
+Getters are little bit tougher and they completely resist any attempt to override them. Getters are unfortunately configured as non-configurable when store is created. That means attempts like these won't help us:
+```js
+beforeEach(function () {
+  this.store.getters.isAuthenticated = sinon.stub(); // throws an Error
+
+  Object.defineProperty(this.store.getters, 'isAuthenticated', {
+    get() {
+      return sinon.stub();
+    }
+  }); // throws an Error
+
+  Reflect.defineProperty(this.store.getters, 'isAuthenticated', {
+    get() {
+      return sinon.stub();
+    }
+  }); // returns false, which means it wasn't successful
+});
+```
+It's not over yet, the `getters` property is not protected, that means we can replaced whole `getters` with mock which we can control over. We can use [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) as a man-in-the-middle which will be returning mocked getters or original ones based on the configuration:
+```js
+beforeEach(function () {
+  let isAuthenticatedStub = sinon.stub().returns(true);
+
+  let proxy = new Proxy(this.store.getters, {
+    get(getters, key) {
+      if (key === 'isAuthenticated') {
+        return isAuthenticatedStub();
+      } else {
+        return getters[key];
+      }
+    }
+  });
+
+  Object.defineProperty(this.store, 'getters', {
+    get() {
+      return proxy;
+    }
+  });
+});
+```
+That's a lot of code for mocking only one getter so it would be better to extract it as a helper method or attach it to the `Store.prototype`. We can also make the name and the stub function's parameters so the function becomes more generic:
+```js
+import { Store } from 'vuex';
+
+Store.prototype.mockGetter = function (name, stub) {
+  let store = this;
+  let mockedGetters = store.__mockedGetters = store.__mockedGetters || new Map();
+
+  mockedGetters.set(name, stub);
+
+  let gettersProxy = new Proxy(store.getters, {
+    get (getters, propName) {
+      if (mockedGetters.has(propName)) {
+        return mockedGetters.get(propName).call(store);
+      } else {
+        return getters[propName];
+      }
+    }
+  });
+
+  Object.defineProperty(store, 'getters', {
+    get () {
+      return gettersProxy;
+    }
+  });
+};
+```
+Then we can call in the test:
+```js
+beforeEach(function () {
+  let isAuthenticatedStub = sinon.stub().returns(true);
+  this.store.mockGetter('isAuthenticated', isAuthenticatedStub);
+});
+```
+You can see full implementation (including restoring mock back to original functionality) in [test/unit/utils/store.js](./test/unit/utils/store.js) file.
+
 # Using flush-promises vs Vue.nextTick()
 
 This topic has been fully covered by [the official documentation](https://vue-test-utils.vuejs.org/en/guides/testing-async-components.html).

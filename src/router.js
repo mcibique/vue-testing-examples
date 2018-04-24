@@ -41,7 +41,7 @@ export function createRouter (/* istanbul ignore next */ vueInstance = Vue, stor
         path: '/',
         name: 'root',
         redirect () {
-          if (store.state.auth.token) {
+          if (store.getters['auth/isAuthenticated']) {
             return '/welcome';
           } else {
             return '/login';
@@ -57,7 +57,7 @@ export function createRouter (/* istanbul ignore next */ vueInstance = Vue, stor
 
   router.beforeEach(function (to, from, next) {
     if (to.matched.some(record => record.meta.requiresAuth)) {
-      if (!store.state.auth.token) {
+      if (!store.getters['auth/isAuthenticated']) {
         return void next({ name: 'login' });
       }
     }

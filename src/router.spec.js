@@ -5,15 +5,14 @@ import sinon from 'sinon';
 import flushPromises from 'flush-promises';
 
 import { createRouter } from '@/router';
+import { createStore } from '@/store';
 
 describe('Router', function () {
   beforeEach(function () {
     this.localVue = createLocalVue();
 
-    this.store = {
-      state: {},
-      dispatch: sinon.stub().returnsPromise()
-    };
+    this.store = createStore(this.localVue);
+    sinon.stub(this.store, ['dispatch']).returnsPromise();
 
     this.router = createRouter(this.localVue, this.store);
   });
@@ -58,9 +57,10 @@ describe('Router', function () {
   });
 
   describe('root route', function () {
-    describe('when user is not logged in', function () {
+    describe('when user is already logged in', function () {
       beforeEach(function () {
-        this.store.state.auth = { token: 'random_token' };
+        this.isAuthenticatedStub = sinon.stub().returns(true);
+        this.store.mockGetter('auth/isAuthenticated', this.isAuthenticatedStub);
       });
 
       it('should redirect user to welcome view', async function () {
@@ -70,9 +70,10 @@ describe('Router', function () {
       });
     });
 
-    describe('when user is already logged in', function () {
+    describe('when user is not logged in', function () {
       beforeEach(function () {
-        this.store.state.auth = { token: null };
+        this.isAuthenticatedStub = sinon.stub().returns(false);
+        this.store.mockGetter('auth/isAuthenticated', this.isAuthenticatedStub);
       });
 
       it('should redirect user to login view', async function () {
@@ -85,7 +86,9 @@ describe('Router', function () {
 
   describe('auth navigation guard', function () {
     beforeEach(function () {
-      this.store.state.auth = { token: null };
+      this.isAuthenticatedStub = sinon.stub();
+      this.store.mockGetter('auth/isAuthenticated', this.isAuthenticatedStub);
+
       this.router.addRoutes([
         { name: 'protected-route', path: '/protected-route', meta: { requiresAuth: true } },
         { name: 'unprotected-route', path: '/unprotected-route', meta: { requiresAuth: false } }
@@ -95,7 +98,7 @@ describe('Router', function () {
     describe('when user navigates to route which requires authentication', function () {
       describe('and user is not authenticated', function () {
         beforeEach(function () {
-          this.store.state.auth.token = null;
+          this.isAuthenticatedStub.returns(false);
           this.router.push('protected-route');
           return flushPromises();
         });
@@ -107,7 +110,7 @@ describe('Router', function () {
 
       describe('and user has already been authenticated', function () {
         beforeEach(function () {
-          this.store.state.auth.token = 'auth_token';
+          this.isAuthenticatedStub.returns(true);
           this.router.push('protected-route');
           return flushPromises();
         });

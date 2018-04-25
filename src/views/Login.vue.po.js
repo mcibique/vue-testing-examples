@@ -1,5 +1,6 @@
 import BasePageObj from '@unit/base.po';
 import MyButtonPageObj from '@/components/MyButton.vue.po';
+import MyCheckboxPageObj from '@/components/MyCheckbox.vue.po';
 
 export default class LoginViewPageObj extends BasePageObj {
   get form () {
@@ -12,6 +13,10 @@ export default class LoginViewPageObj extends BasePageObj {
 
   get passwordInput () {
     return this.tid('login__password');
+  }
+
+  get rememberMeCheckbox () {
+    return new MyCheckboxPageObj(this.tid('login__remember-me'));
   }
 
   get submitButton () {
@@ -34,12 +39,14 @@ export default class LoginViewPageObj extends BasePageObj {
     this.form.trigger('submit');
   }
 
-  login (username, password) {
+  login (username, password, rememberMe = false) {
     this.usernameInput.element.value = username;
     this.usernameInput.trigger('input');
 
     this.passwordInput.element.value = password;
     this.passwordInput.trigger('input');
+
+    this.rememberMeCheckbox.setChecked(rememberMe);
 
     this.submit();
   }

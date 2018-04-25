@@ -37,9 +37,10 @@ describe('Auth service', function () {
       let fakeData = {};
       let username = 'fake_username';
       let password = 'fake_password';
-      this.axios.onPost('/api/login', { username, password }).replyOnce(200, fakeData);
+      let rememberMe = false;
+      this.axios.onPost('/api/login', { username, password, rememberMe }).replyOnce(200, fakeData);
 
-      let response = await this.authService.login(username, password);
+      let response = await this.authService.login(username, password, rememberMe);
       expect(response).to.deep.equal(fakeData);
     });
   });

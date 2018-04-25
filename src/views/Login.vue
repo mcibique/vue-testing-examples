@@ -12,6 +12,9 @@
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" placeholder="Enter your password" v-model="password" tid="login__password">
       </div>
+      <div class="c-login__row">
+        <my-checkbox v-model="rememberMe" tid="login__remember-me">Remember me</my-checkbox>
+      </div>
 
       <my-button type="submit" class="c-login__submit-button" tid="login__submit-button" :primary="true">Log in</my-button>
       <div class="c-login__help-section" tid="login__help-section" v-if="displayHelp">
@@ -28,22 +31,24 @@ import { Component } from 'vue-property-decorator';
 
 import { LazyInject, GLOBAL_ID } from '@di';
 import MyButton from '@/components/MyButton';
+import MyCheckbox from '@/components/MyCheckbox';
 import Focus from '@/directives/focus';
 
 @Component({
-  components: { MyButton },
+  components: { MyButton, MyCheckbox },
   directives: { Focus }
 })
 export default class LoginView extends Vue {
   password = '';
   username = '';
+  rememberMe = false;
   validationError = null;
   displayHelp = false;
 
   @LazyInject(GLOBAL_ID) global;
 
-  login (username, password) {
-    return this.$store.dispatch('auth/login', { username, password });
+  login (username, password, rememberMe) {
+    return this.$store.dispatch('auth/login', { username, password, rememberMe });
   }
 
   beforeRouteEnter (to, from, next) {
@@ -65,7 +70,7 @@ export default class LoginView extends Vue {
       return;
     }
 
-    this.login(this.username, this.password)
+    this.login(this.username, this.password, this.rememberMe)
       .then(() => {
         this.$router.push({ name: 'welcome' });
       })

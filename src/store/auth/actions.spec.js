@@ -31,8 +31,9 @@ describe('Store - Auth module actions', function () {
     it('should verify login credentials using external service', function () {
       let username = 'random_username';
       let password = 'random_password';
-      login(this.actionContext, { username, password });
-      expect(this.loginApiMock).to.have.been.calledWith(username, password);
+      let rememberMe = false;
+      login(this.actionContext, { username, password, rememberMe });
+      expect(this.loginApiMock).to.have.been.calledWith(username, password, rememberMe);
     });
 
     describe('when given credentials are valid', function () {
@@ -58,9 +59,10 @@ describe('Store - Auth module actions', function () {
       it('should not update token in the store', async function () {
         let username = 'random_username';
         let password = 'random_password';
+        let rememberMe = false;
         let errorHandler = sinon.spy();
 
-        await login(this.actionContext, { username, password }).catch(errorHandler);
+        await login(this.actionContext, { username, password, rememberMe }).catch(errorHandler);
 
         expect(errorHandler, 'Should propagate the error to the next callback').to.have.been.called;
         expect(this.dispatchStub, 'Should not perform any action in the store').not.to.have.been.called;

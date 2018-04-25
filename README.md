@@ -34,10 +34,10 @@ Topics already covered:
   * [Mocking store for a smart component](#mocking-store-for-a-smart-component)
   * [Mocking store for router](#mocking-store-for-router)
   * [Mocking actions, mutations and getters](#mocking-actions-mutations-and-getters)
+- [Testing v-model](#testing-v-model)
 - [Using flush-promises vs Vue.nextTick()](#using-flush-promises-vs-vuenexttick)
 
 To document:
-1. Testing v-model
 1. Testing navigation guards
 1. Testing filter
 1. Testing directive
@@ -1312,6 +1312,71 @@ beforeEach(function () {
 });
 ```
 You can see full implementation (including restoring mock back to original functionality) in [test/unit/utils/store.js](./test/unit/utils/store.js) file.
+
+# Testing v-model
+Let's test a custom component with v-model support, e.g. like this one
+```html
+<div class="c-checkbox">
+  <input type="checkbox" v-model="checkboxModel" hidden :id="id">
+  <span class="c-checkbox__icon" @click="toggle()"
+        :class="{ 'c-checkbox__icon--checked': isChecked, 'c-checkbox__icon--unchecked': !isChecked }"></span>
+  <label :for="id"><slot></slot></label>
+</div>
+```
+```js
+import Vue from 'vue';
+import { Component, Model, Prop } from 'vue-property-decorator';
+import uniqueId from 'lodash/uniqueId';
+
+@Component
+export default class MyCheckbox extends Vue {
+  @Model('change') @Prop(Boolean) value;
+
+  id = uniqueId('my-checkbox-');
+
+  get checkboxModel () {
+    return this.value;
+  }
+
+  set checkboxModel (value) {
+    this.$emit('change', value);
+  }
+
+  get isChecked () {
+    return !!this.checkboxModel;
+  }
+
+  toggle () {
+    this.checkboxModel = !this.checkboxModel;
+  }
+}
+```
+We can use this component in any form:
+```html
+<my-checkbox v-model="value"></my-checkbox>
+```
+If the component doesn't have `v-model` we can do all test just using `mount(MyCheckbox, { ... })`, but unfortunately, the component supports `v-model` and there is no way how model can be passed to the `mount()`. What we have to do is to create another component which uses the component under the test inside his template. The wrapper can also provide a value which will be passed to the v-model and which will be updated:
+```js
+beforeEach(function () {
+  let Wrapper = Vue.extend({
+    components: { MyCheckbox },
+    data () {
+      return { value: false };
+    },
+    template: `<my-checkbox v-model="value"></my-checkbox>` // if you don't have VUE with compiler, use compileToFunctions helper
+  });
+
+  this.wrapper = mount(Wrapper);
+});
+
+it('should change the value', function () {
+  expect(this.wrapper.vm.value).to.be.false; // do not check for vm values in your tests, but rather check the state of your component in DOM. this is just for demo purpose.
+  wrapper.trigger('click');
+  expect(this.wrapper.vm.value).to.be.true;
+  wrapper.trigger('click');
+  expect(this.wrapper.vm.value).to.be.false;
+});
+```
 
 # Using flush-promises vs Vue.nextTick()
 

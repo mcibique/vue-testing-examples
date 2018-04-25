@@ -11,10 +11,10 @@ export default class AuthService {
     this.credentialsService = credentialsService;
   }
 
-  login (username, password) {
+  login (username, password, rememberMe) {
     username = this.credentialsService.sanitize(username);
     password = this.credentialsService.sanitize(password);
-    return axios.post('/api/login', { username, password }).then(response => response.data);
+    return axios.post('/api/login', { username, password, rememberMe }).then(response => response.data);
   }
 
   logout () {

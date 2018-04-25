@@ -60,6 +60,7 @@ describe('Login view', function () {
     expect(loginView.validationError.exists(), 'Validation error should not be visible').to.be.false;
     expect(loginView.usernameInput.element.value, 'Username should be initialized with empty value').to.equal('');
     expect(loginView.passwordInput.element.value, 'Password should be initialized with empty value').to.equal('');
+    expect(loginView.rememberMeCheckbox.isChecked(), 'Remember me should be initialized without any value').to.be.false;
     expect(loginView.submitButton.attributes().disabled, 'Submit button should be enabled').to.be.undefined;
   });
 
@@ -99,7 +100,8 @@ describe('Login view', function () {
       beforeEach(function () {
         let username = 'test_username';
         let password = 'test_password';
-        this.axios.onPost('/api/login', { username, password }).replyOnce(200, 'random_token');
+        let rememberMe = false;
+        this.axios.onPost('/api/login', { username, password, rememberMe }).replyOnce(200, 'random_token');
 
         this.router.push = this.routerPushStub = sinon.stub(); // router.push must be mocked because next route uses async component
 
@@ -122,8 +124,9 @@ describe('Login view', function () {
       beforeEach(function () {
         let username = 'test_username';
         let password = 'test_password';
+        let rememberMe = false;
         this.expectedErrorMessage = 'Invalid username or password';
-        this.axios.onPost('/api/login', { username, password }).replyOnce(401, { error: { message: this.expectedErrorMessage } });
+        this.axios.onPost('/api/login', { username, password, rememberMe }).replyOnce(401, { error: { message: this.expectedErrorMessage } });
 
         this.loginView = this.mountLoginView();
         this.loginView.login(username, password);
@@ -138,6 +141,28 @@ describe('Login view', function () {
 
       it('should reset password input back to initial value', function () {
         expect(this.loginView.passwordInput.element.value, 'Password wasn\'t reset back to initial value').to.equal('');
+      });
+    });
+
+    describe('and user ticked "Remember me" option', function () {
+      beforeEach(function () {
+        let username = 'test_username';
+        let password = 'test_password';
+        let rememberMe = true;
+        this.axios.onPost('/api/login', { username, password, rememberMe }).replyOnce(200, 'random_token');
+
+        this.loginView = this.mountLoginView();
+        this.loginView.login(username, password, rememberMe);
+
+        return flushPromises();
+      });
+
+      it('should send the option to the API', function () {
+        this.axios.verifyNoOutstandingExpectation();
+      });
+
+      it('should not display any error message', function () {
+        expect(this.loginView.validationError.exists(), 'Validation error should not be visible').to.be.false;
       });
     });
   });
@@ -192,7 +217,7 @@ describe('Login view', function () {
       this.loginView.destroy();
     });
 
-    it('should perform a clean up', function () {
+    it('should perform a cleanup', function () {
       expect(Object.keys(this.clock.timers).length).to.equal(0);
     });
   });

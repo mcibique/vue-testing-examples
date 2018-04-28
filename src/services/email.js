@@ -8,4 +8,7 @@ export default class EmailService {
   getEmails () {
     return axios.get('/api/emails').then(response => response.data);
   }
+  markEmailAsRead (id) {
+    return axios.put(`/api/emails/${id}`, { unread: false }).then(response => response.data);
+  }
 }

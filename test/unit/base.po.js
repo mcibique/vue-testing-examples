@@ -11,20 +11,24 @@ export default class BasePageObj {
     return this.wrapper.vm;
   }
 
+  attributes () {
+    return this.wrapper.attributes();
+  }
+
+  classes () {
+    return this.wrapper.classes();
+  }
+
+  destroy () {
+    return this.wrapper.destroy();
+  }
+
   exists () {
     return this.wrapper.exists();
   }
 
   text () {
     return this.wrapper.text();
-  }
-
-  attributes () {
-    return this.wrapper.attributes();
-  }
-
-  destroy () {
-    return this.wrapper.destroy();
   }
 
   tid (...args) {

@@ -25,9 +25,23 @@ describe('Email service', function () {
     it('should call external API', function () {
       let fakeData = [{ id: 1, subject: 'Random subject' }];
       this.axios.onGet('/api/emails').replyOnce(200, fakeData);
-      return this.emailService.getEmails().then(function (response) {
-        expect(response).to.deep.equal(fakeData);
-      });
+      expect(this.emailService.getEmails()).to.become(fakeData);
+    });
+  });
+
+  describe('markEmailAsRead()', function () {
+    it('should call external API', function () {
+      let emailId = 123;
+      let fakeData = {};
+      this.axios.onPut(`/api/emails/${emailId}`).replyOnce(204, fakeData);
+      expect(this.emailService.markEmailAsRead(emailId)).to.become(fakeData);
+    });
+
+    it('should mark given email as read', function () {
+      let emailId = 123;
+      let fakeData = {};
+      this.axios.onPut(`/api/emails/${emailId}`, { unread: false }).replyOnce(204, fakeData);
+      expect(this.emailService.markEmailAsRead(emailId)).to.become(fakeData);
     });
   });
 });

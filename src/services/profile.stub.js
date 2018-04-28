@@ -11,10 +11,10 @@ export default class ProfileStubService extends ProfileService {
   getProfile () {
     let axiosMock = new AxiosMockAdapter(axios);
     axiosMock.onGet('/api/profile').replyOnce(200, {
-      firstName: 'FirstName',
-      lastName: 'LastName',
-      username: 'UserName',
-      id: 'RandomId1'
+      firstName: 'John',
+      lastName: 'Doe',
+      username: 'john.doe',
+      id: '123'
     });
 
     return super.getProfile().finally(() => axiosMock.restore());

@@ -33,7 +33,8 @@ describe('Welcome view', function () {
 
     // email service
     this.emailService = {
-      getEmails: sinon.stub().returnsPromise()
+      getEmails: sinon.stub().returnsPromise(),
+      markEmailAsRead: sinon.stub().returnsPromise()
     };
     container.rebind(EMAIL_SERVICE_ID).toConstantValue(this.emailService);
 
@@ -77,8 +78,8 @@ describe('Welcome view', function () {
       this.profileService.getProfile.resolves(this.randomProfile);
 
       this.randomEmails = [
-        { id: 1, subject: 'Random_subject', unread: true, sender: 'random1@sender.com' },
-        { id: 2, subject: 'Random_subject', unread: false, sender: 'random2@sender.com' }
+        { id: 1, subject: 'Random_subject', unread: true, sender: 'random1@sender.com', body: 'Random body 1' },
+        { id: 2, subject: 'Random_subject', unread: false, sender: 'random2@sender.com', body: 'Random body 2' }
       ];
       this.emailService.getEmails.resolves(this.randomEmails);
 
@@ -107,6 +108,42 @@ describe('Welcome view', function () {
         let email = this.welcomeView.dashboard.emailsSection.getEmailByIndex(index);
         expect(email.subject.text(), `Should display subject for email with index ${index}`).to.equal(randomEmail.subject);
         expect(email.sender.text(), `Should display sender for email with index ${index}`).to.equal(`from ${randomEmail.sender}`);
+        expect(email.body.text(), `Should create body for email with index ${index}`).to.equal(`${randomEmail.body}`);
+        expect(email.isOpen(), `Should not display body for email with index ${index}`).to.be.false;
+      });
+    });
+
+    describe('when user opens any email', function () {
+      beforeEach(function () {
+        this.emailService.markEmailAsRead.resolves({});
+
+        this.emailToOpen = this.welcomeView.dashboard.emailsSection.getEmailByIndex(0);
+        this.emailToOpen.open();
+        return Vue.nextTick();
+      });
+
+      it('should open given email', function () {
+        expect(this.emailToOpen.isOpen(), 'Email should open but it didn\'t.').to.be.true;
+      });
+
+      it('should mark the email as read', function () {
+        expect(this.emailToOpen.isUnread(), 'Recently open email didn\'t get open').to.be.false;
+      });
+
+      describe('and then opens another email', function () {
+        beforeEach(function () {
+          this.nextEmailToOpen = this.welcomeView.dashboard.emailsSection.getEmailByIndex(1);
+          this.nextEmailToOpen.open();
+          return Vue.nextTick();
+        });
+
+        it('should open given email', function () {
+          expect(this.nextEmailToOpen.isOpen(), 'Second email didn\'t get open').to.be.true;
+        });
+
+        it('should close previous open email', function () {
+          expect(this.emailToOpen.isOpen(), 'Previous email didn\'t get closed').to.be.false;
+        });
       });
     });
 
@@ -120,8 +157,8 @@ describe('Welcome view', function () {
         expect(this.welcomeView.dashboard.emailsSection.header.text(), 'Should display message about no emails').to.equal('You have no unread emails');
       });
 
-      it('should not display list of emails', function () {
-        expect(this.welcomeView.dashboard.emailsSection.list.exists(), 'Should have not display emails list').to.be.false;
+      it('should display list of emails', function () {
+        expect(this.welcomeView.dashboard.emailsSection.list.exists(), 'Should display emails list').to.be.true;
       });
     });
   });

@@ -38,4 +38,9 @@ export default class EmailStubService extends EmailService {
 
     return super.getEmails().finally(() => axiosMock.restore());
   }
+  markEmailAsRead (id) {
+    let axiosMock = new AxiosMockAdapter(axios);
+    axiosMock.onPut(`/api/emails/${id}`).replyOnce(204, {});
+    return super.markEmailAsRead(id).finally(() => axiosMock.restore());
+  }
 }

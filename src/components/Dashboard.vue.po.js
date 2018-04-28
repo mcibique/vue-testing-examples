@@ -33,7 +33,25 @@ export class EmailPageObj extends BasePageObj {
     return this.tid('dashboard__email-sender');
   }
 
+  get body () {
+    return this.tid('dashboard__email-body');
+  }
+
+  isOpen () {
+    return this.body.isVisible();
+  }
+
   isUnread () {
-    return this.subject.classes().includes('dashboard__email-subject--unread');
+    return this.classes().includes('dashboard__email-subject--unread');
+  }
+
+  open () {
+    if (!this.isOpen()) {
+      this.toggle();
+    }
+  }
+
+  toggle () {
+    this.subject.trigger('click');
   }
 }

@@ -2,7 +2,7 @@
   <section class="welcome" tid="welcome" v-if="!isLoading && !loadingError">
     <h1 class="welcome__header" v-if="profile" tid="welcome__header">Welcome {{ profile | fullName }}!</h1>
     <div tid="welcome__dashboard">
-      <dashboard :emails="emails"></dashboard>
+      <dashboard :emails="emails" @open-email="onEmailOpen"></dashboard>
     </div>
   </section>
   <div v-else-if="loadingError" tid="welcome_loading-error">
@@ -44,6 +44,13 @@ export default class WelcomeView extends Vue {
     this.profile = profile;
     this.emails = emails;
     this.isLoading = false;
+  }
+
+  async onEmailOpen (email) {
+    if (email.unread) {
+      await this.emailService.markEmailAsRead(email.id);
+      email.unread = false;
+    }
   }
 }
 </script>

@@ -1,24 +1,26 @@
 <template>
-  <div id="app" class="c-app">
-    <header class="c-app__header">
-      <router-link to="/logout" v-if="isAuthenticated">Logout</router-link>
+  <div id="app" class="c-app" tid="c-app">
+    <header class="c-app__header" tid="c-app__header">
+      <router-link to="/logout" v-if="isAuthenticated" tid="c-app__logout-link">Logout</router-link>
     </header>
-    <main class="c-app__main">
+    <main class="c-app__main" tid="c-app__main">
       <router-view></router-view>
     </main>
-    <footer class="c-app__footer">
-      <router-link to="/about">About</router-link>
+    <footer class="c-app__footer" tid="c-app__footer">
+      <router-link to="/about" tid="c-app__about-link">About</router-link>
     </footer>
   </div>
 </template>
 
 <script>
+import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
-import { Getter } from 'vuex-class';
+
+import { AuthGetter } from './store/auth';
 
 @Component
-export default class App {
-  @Getter('auth/isAuthenticated') isAuthenticated;
+export default class App extends Vue {
+  @AuthGetter('isAuthenticated') isAuthenticated;
 }
 </script>
 

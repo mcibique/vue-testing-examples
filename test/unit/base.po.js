@@ -27,6 +27,10 @@ export default class BasePageObj {
     return this.wrapper.exists();
   }
 
+  html () {
+    return this.wrapper.html();
+  }
+
   text () {
     return this.wrapper.text();
   }

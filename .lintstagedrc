@@ -1,0 +1,6 @@
+{
+  "*.{js,vue}": [
+    "npm run lint",
+    "git add"
+  ]
+}

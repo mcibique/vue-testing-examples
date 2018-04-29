@@ -34,6 +34,9 @@ Topics already covered:
   * [Mocking store for a smart component](#mocking-store-for-a-smart-component)
   * [Mocking store for router](#mocking-store-for-router)
   * [Mocking actions, mutations and getters](#mocking-actions-mutations-and-getters)
+  * [Setting up initial state in tests](#setting-up-initial-state-in-tests)
+    + [Using existing mutations to change initial state](#using-existing-mutations-to-change-initial-state)
+    + [Modifying the state directly](#modifying-the-state-directly)
 - [Testing v-model](#testing-v-model)
 - [Using flush-promises vs Vue.nextTick()](#using-flush-promises-vs-vuenexttick)
 
@@ -1312,6 +1315,110 @@ beforeEach(function () {
 });
 ```
 You can see full implementation (including restoring mock back to original functionality) in [test/unit/utils/store.js](./test/unit/utils/store.js) file.
+
+## Setting up initial state in tests
+Let's say we need our store to start with different initial state than is specified in application's code. E.g. a store which holds information about what is the type of current user:
+```js
+// store.js
+export default {
+  state: {
+    isVip: false
+  }
+}
+```
+The problems starts when we want to test a component which uses the flag from store to determine what should be displayed:
+```html
+<template>
+  <section>
+    <h1 v-if="isVip" style="color: gold;" key="welcome-message">Welcome oh mighty user</h1>
+    <h1 v-else style="color: gray;" key="welcome-message">Welcome</h1>
+  </section>
+  <!-- SIDE NOTE: check out https://vuejs.org/v2/style-guide/#v-if-v-if-else-v-else-without-key-use-with-caution to understand why both h1 tags have the key property assigned -->
+</template>
+```
+```js
+class MyComponent extends Vue {
+  get isVip() {
+    return this.$store.state.isVip; // or map it using mapState or @State decorator
+  }
+}
+```
+In test, we need to change the initial state before each test. We have two options how to do that:
+### Using existing mutations to change initial state
+```js
+describe('when user is VIP', function () {
+  beforeEach(function () {
+    this.store = createStore();
+    this.store.commit('setVip', true); // setVip mutation must exist
+  });
+
+  it('should display warning welcome message');
+});
+
+describe('when user is non-VIP', function () {
+  beforeEach(function () {
+    this.store = createStore();
+    this.store.commit('setVip', false); // setVip mutation must exist
+  });
+
+  it('should display generic welcome message');
+});
+```
+### Modifying the state directly
+```js
+describe('when user is VIP', function () {
+  beforeEach(function () {
+    this.store = createStore();
+    this.store.state.isVip = true; // no mutation required
+  });
+
+  it('should display warning welcome message');
+});
+
+describe('when user is non-VIP', function () {
+  beforeEach(function () {
+    this.store = createStore();
+    this.store.state.isVip = false; // no mutation required
+  });
+
+  it('should display generic welcome message');
+});
+```
+There is no winner in this competition, both approaches does the work, it's up to you which one do you prefer. Few notes to consider:
+
+The first approach uses existing functionality, that means if the logic in mutation changes, then you have to update the tests. It also might seem a little less readable.
+
+The second approach doesn't require mutation to be defined (might be useful when an application doesn't need it, don't write a mutation only for using it in tests). Setting properties of the state works well only if you are setting primitive values. The `state` object is [reactive](https://vuejs.org/v2/guide/reactivity.html), that means if you reassign array or object in the `state`, you will disconnect the state and your component under the test:
+```js
+// !warning: this is wrong!
+describe('when user has profile loaded', function () {
+  beforeEach(function () {
+    this.store = createStore();
+    this.store.state.profile = {
+      firstName: 'John',
+      lastName: 'Doe',
+      username: 'john.doe'
+    }; // please don't
+    this.myComponent = mount(MyComponent, { store: this.store })
+  });
+
+  it('should display full name in the welcome message', function () {
+    expect(this.myComponent.find('h1').text()).to.equal('Welcome John Doe'); // fail
+  });
+});
+// !warning: this is wrong!
+```
+If you try to use `firstName` or `lastName` in the template, you will only get undefined values, because these values were not reactified by the Vue. Vue cannot detect new or deleted properties, see [caveats of reactivity](https://vuejs.org/v2/guide/reactivity.html#Change-Detection-Caveats). However you can use `Vue.set()` to fix the problem:
+```js
+beforeEach(function () {
+  Vue.set(this.store.state, 'profile', {
+    firstName: 'John',
+    lastName: 'Doe',
+    username: 'john.doe'
+  });
+});
+```
+And everything works fine again.
 
 # Testing v-model
 Let's test a custom component with v-model support, e.g. like this one

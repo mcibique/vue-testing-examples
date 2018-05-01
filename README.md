@@ -1352,7 +1352,7 @@ describe('when user is VIP', function () {
     this.store.commit('setVip', true); // setVip mutation must exist
   });
 
-  it('should display warning welcome message');
+  it('should display warming welcome message');
 });
 
 describe('when user is non-VIP', function () {
@@ -1372,7 +1372,7 @@ describe('when user is VIP', function () {
     this.store.state.isVip = true; // no mutation required
   });
 
-  it('should display warning welcome message');
+  it('should display warming welcome message');
 });
 
 describe('when user is non-VIP', function () {

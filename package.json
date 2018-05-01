@@ -1,7 +1,10 @@
 {
-  "name": "my-project",
+  "name": "vue-testing-examples",
   "version": "0.0.1-0",
   "private": true,
+  "description": "Advanced testing with vuejs. When you need to go beyond Getting started section and see some real world example with everything that proper tests should have.",
+  "license": "MIT",
+  "author": "mcibique (https://github.com/mcibique)",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",

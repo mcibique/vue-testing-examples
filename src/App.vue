@@ -16,7 +16,7 @@
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 
-import { AuthGetter } from './store/auth';
+import { AuthGetter } from './store';
 
 @Component
 export default class App extends Vue {

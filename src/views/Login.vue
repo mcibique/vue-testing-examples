@@ -30,6 +30,7 @@ import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 
 import { LazyInject, GLOBAL_ID } from '@di';
+import { AuthAction, AuthMutation } from '@/store';
 import MyButton from '@/components/MyButton';
 import MyCheckbox from '@/components/MyCheckbox';
 import Focus from '@/directives/focus';
@@ -45,15 +46,14 @@ export default class LoginView extends Vue {
   validationError = null;
   displayHelp = false;
 
-  @LazyInject(GLOBAL_ID) global;
+  @AuthAction('login') login;
+  @AuthMutation('resetToken') resetToken;
 
-  login (username, password, rememberMe) {
-    return this.$store.dispatch('auth/login', { username, password, rememberMe });
-  }
+  @LazyInject(GLOBAL_ID) global;
 
   beforeRouteEnter (to, from, next) {
     next(function (vm) {
-      vm.$store.commit('auth/resetToken');
+      vm.resetToken();
     });
   }
 
@@ -70,7 +70,7 @@ export default class LoginView extends Vue {
       return;
     }
 
-    this.login(this.username, this.password, this.rememberMe)
+    this.login({ username: this.username, password: this.password, rememberMe: this.rememberMe })
       .then(() => {
         this.$router.push({ name: 'welcome' });
       })

@@ -167,20 +167,38 @@ describe('Login view', function () {
     });
   });
 
-  // impossible to trigger callback in next(cb) by pushing { name: 'login' } route.
-  describe.skip('before login is displayed to the user', function () {
+  describe('before login is displayed to the user', function () {
+    // impossible to trigger callback in next(cb) by pushing { name: 'login' } route.
+    // this will never work:
+
+    // beforeEach(function () {
+    //   this.router.push({ name: 'about' });
+
+    //   this.store.commit('auth/setToken', 'random_token');
+    //   this.mountLoginView();
+
+    //   this.router.push({ name: 'login' });
+    //   return flushPromises();
+    // });
+
+    // it('should clean up previous auth token', function () {
+    //   expect(this.store.state.auth.token).to.equal(null);
+    // });
+
     beforeEach(function () {
-      this.router.push({ name: 'about' });
-
       this.store.commit('auth/setToken', 'random_token');
-      this.mountLoginView();
-
-      this.router.push({ name: 'login' });
-      return flushPromises();
     });
 
-    it('should reset auth token in the store', function () {
-      expect(this.store.state.auth.token).to.equal(null);
+    it('should clean up previous auth token', async function () {
+      let view = this.mountLoginView();
+      let spy = sinon.spy(view.vm, 'resetToken');
+
+      let from = {};
+      let to = {};
+      view.vm.$options.beforeRouteEnter[0](to, from, cb => cb(view.vm));
+
+      expect(spy).to.have.been.called;
+      expect(this.store.state.auth.token).to.be.null;
     });
   });
 

@@ -17,7 +17,7 @@ import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 
 @Component
-export default class WelcomeView extends Vue {
+export default class Dashboard extends Vue {
   @Prop({ type: Array, default: () => [] }) emails;
 
   openEmailId = null;

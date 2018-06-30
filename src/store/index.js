@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { Getter, State, Action, Mutation, namespace } from 'vuex-class';
+import { namespace } from 'vuex-class';
 
 import createAuthModule from './auth';
 
@@ -20,10 +20,7 @@ export function createStore (/* istanbul ignore next */ vueInstance = Vue) {
 
 export const STORE_ID = Symbol('store');
 
-let AuthGetter = namespace(AUTH_MODULE_ID, Getter);
-let AuthState = namespace(AUTH_MODULE_ID, State);
-let AuthAction = namespace(AUTH_MODULE_ID, Action);
-let AuthMutation = namespace(AUTH_MODULE_ID, Mutation);
+let { Getter: AuthGetter, State: AuthState, Action: AuthAction, Mutation: AuthMutation } = namespace(AUTH_MODULE_ID);
 
 export {
   AuthGetter,

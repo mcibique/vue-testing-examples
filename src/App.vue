@@ -20,7 +20,7 @@ import { AuthGetter } from './store';
 
 @Component
 export default class App extends Vue {
-  @AuthGetter('isAuthenticated') isAuthenticated;
+  @AuthGetter isAuthenticated;
 }
 </script>
 

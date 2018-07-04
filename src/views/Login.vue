@@ -46,8 +46,8 @@ export default class LoginView extends Vue {
   validationError = null;
   displayHelp = false;
 
-  @AuthAction('login') login;
-  @AuthMutation('resetToken') resetToken;
+  @AuthAction login;
+  @AuthMutation resetToken;
 
   @LazyInject(GLOBAL_ID) global;
 

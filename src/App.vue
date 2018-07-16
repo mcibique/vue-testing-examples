@@ -46,6 +46,11 @@ body {
   height: 100vh;
   min-width: 320px;
   font-size: 1.6rem;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(4, 34, 62, 0.7) 0%,
+    rgb(4, 34, 62) 100%
+  );
 }
 
 input {
@@ -56,6 +61,11 @@ input {
   color: inherit;
   font-size: 1.4rem;
   width: 100%;
+}
+
+:focus,
+input:focus {
+  outline: rgb(2, 116, 169, 0.5) auto 0.5rem;
 }
 
 label {
@@ -89,6 +99,11 @@ a:active {
   color: rgba(2, 116, 169, 0.75);
 }
 
+a:focus {
+  outline-style: dashed;
+  outline-width: 0.1rem;
+}
+
 pre {
   white-space: pre-wrap;
   word-break: break-word;
@@ -101,7 +116,8 @@ pre {
 }
 
 .c-app__header {
-  background-color: #eee;
+  border-bottom: 1px solid rgba(17, 4, 62, 1);
+  background-color: rgba(17, 4, 62, 0.25);
   padding: 2rem 4rem;
   text-align: right;
   min-height: 6rem;
@@ -116,7 +132,7 @@ pre {
 
 .c-app__footer {
   padding: 2rem 4rem;
-  border-top: 1px solid #ccc;
-  background-color: #fafafa;
+  border-top: 1px solid rgba(17, 4, 62, 1);
+  background-color: rgba(17, 4, 62, 0.25);
 }
 </style>

@@ -116,7 +116,10 @@ export default class LoginView extends Vue {
 .c-login__form {
   max-width: 400px;
   width: 100%;
-  border: 1px solid #eee;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(4, 34, 62, 1);
+  border-radius: 0.4rem;
+  box-shadow: 0.3rem 0.3rem 0.4rem 0.1rem rgba(4, 34, 62, 1);
   padding: 4rem;
 }
 

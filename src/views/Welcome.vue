@@ -1,6 +1,6 @@
 <template>
-  <section class="welcome" tid="welcome" v-if="!isLoading && !loadingError">
-    <h1 class="welcome__header" v-if="profile" tid="welcome__header">Welcome {{ profile | fullName }}!</h1>
+  <section class="c-welcome" tid="welcome" v-if="!isLoading && !loadingError">
+    <h1 class="c-welcome__header" v-if="profile" tid="welcome__header">Welcome {{ profile | fullName }}!</h1>
     <div tid="welcome__dashboard">
       <dashboard :emails="emails" @open-email="onEmailOpen"></dashboard>
     </div>
@@ -56,7 +56,15 @@ export default class WelcomeView extends Vue {
 </script>
 
 <style>
-.welcome__header {
+.c-welcome {
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(4, 34, 62, 1);
+  border-radius: 0.4rem;
+  box-shadow: 0.3rem 0.3rem 0.4rem 0.1rem rgba(4, 34, 62, 1);
+  padding: 0.5rem 2rem;
+}
+
+.c-welcome__header {
   border-bottom: 1px solid #333;
   margin-top: 2rem;
   margin-bottom: 5rem;

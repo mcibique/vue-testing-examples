@@ -1,20 +1,21 @@
 module.exports = {
   root: true,
-  parserOptions: {
-    ecmaVersion: 2017,
-    parser: "babel-eslint",
-    sourceType: "module"
-  },
   env: {
+    node: true,
     mocha: true
   },
   extends: [
-    "plugin:vue/essential",
-    "@vue/standard"
+    'plugin:vue/essential',
+    '@vue/standard'
   ],
   rules: {
-    "semi": ["error", "always"],
-    "quotes": ["error", "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
-    "no-unused-expressions": "off"
+    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'semi': ['error', 'always'],
+    'quotes': ['error', 'single', { 'avoidEscape': true, 'allowTemplateLiterals': true }],
+    'no-unused-expressions': 'off'
+  },
+  parserOptions: {
+    parser: 'babel-eslint'
   }
 }

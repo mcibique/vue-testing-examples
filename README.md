@@ -1574,7 +1574,7 @@ And everything works fine again.
 
 ## Testing v-model
 
-Let's test a custom component with v-model support, e.g. like this one:
+Let's test a custom component with `v-model` support, e.g. like this one:
 
 ```html
 <div class="c-checkbox">
@@ -1700,4 +1700,4 @@ it('should trigger beforeRouteEnter event', function () {
 });
 ```
 
-This approach requires a knowledge about VUE and router internals and **can stop working** after every minor refactoring done by the VUE team. I do not recommend to use it unless guys from VUE provide some helper function in @vue/test-utils library for setting it up using cleaner way.
+This approach requires a knowledge about VUE and router internals and **can stop working** after every minor refactoring done by the VUE team. I do not recommend to use it unless guys from VUE provide some helper function in [@vue/test-utils](https://github.com/vuejs/vue-test-utils) library for setting it up using cleaner way.

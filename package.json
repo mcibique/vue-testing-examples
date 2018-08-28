@@ -8,7 +8,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "test": "nyc vue-cli-service test:unit src/**/*.spec.js src/router.spec.js src/store/**/*.spec.js src/App.vue.spec.js --include ./src/bootstrap.js ./test/unit/index.js",
+    "test": "nyc vue-cli-service test:unit 'src/**/*.spec.js' --include ./src/bootstrap.js ./test/unit/index.js",
     "test:watch": "npm run test -- --watch",
     "lint": "vue-cli-service lint"
   },

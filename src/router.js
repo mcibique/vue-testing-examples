@@ -3,8 +3,10 @@ import VueRouter from 'vue-router';
 
 import container from '@di';
 import { STORE_ID } from './store';
-import Login from './views/Login.vue';
-import About from './views/About.vue';
+import LoginView from './views/Login.vue';
+import AboutView from './views/About.vue';
+
+let WelcomeView = () => import(/* webpackChunkName: "auth" */ './views/Welcome.vue');
 
 export function createRouter (/* istanbul ignore next */ vueInstance = Vue, store = container.get(STORE_ID)) {
   vueInstance.use(VueRouter);
@@ -15,7 +17,7 @@ export function createRouter (/* istanbul ignore next */ vueInstance = Vue, stor
       {
         path: '/login',
         name: 'login',
-        component: Login
+        component: LoginView
       },
       {
         path: '/logout',
@@ -29,13 +31,13 @@ export function createRouter (/* istanbul ignore next */ vueInstance = Vue, stor
       {
         path: '/about',
         name: 'about',
-        component: About
+        component: AboutView
       },
       {
         path: '/welcome',
         name: 'welcome',
         meta: { requiresAuth: true },
-        component: () => import(/* webpackChunkName: "auth" */ './views/Welcome.vue')
+        component: WelcomeView
       },
       {
         path: '/',

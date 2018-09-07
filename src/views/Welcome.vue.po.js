@@ -1,5 +1,5 @@
 import BasePageObj from '@unit/base.po';
-import DashboardPageObj from '@/components/Dashboard.vue.po';
+import EmailsPageObj from '@/components/Emails.vue.po';
 
 export default class WelcomeViewPageObj extends BasePageObj {
   get header () {
@@ -14,7 +14,7 @@ export default class WelcomeViewPageObj extends BasePageObj {
     return this.tid('welcome_loading-error');
   }
 
-  get dashboard () {
-    return new DashboardPageObj(this.tid('welcome__dashboard'));
+  get emails () {
+    return new EmailsPageObj(this.tid('welcome__emails'));
   }
 }

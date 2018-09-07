@@ -96,16 +96,15 @@ describe('Welcome view', function () {
       expect(this.welcomeView.header.text(), 'Should display personal text in header').to.equal('Welcome random_username!');
     });
 
-    it('should display emails in dashboard', function () {
-      expect(this.welcomeView.dashboard.exists(), 'Should have dashboard visible').to.be.true;
-      expect(this.welcomeView.dashboard.emailsSection.exists(), 'Should have emails section visible').to.be.true;
-      expect(this.welcomeView.dashboard.emailsSection.header.exists(), 'Should have emails header visible').to.be.true;
-      expect(this.welcomeView.dashboard.emailsSection.header.text(), 'Should display message about new emails').to.equal('You have 1 new emails:');
-      expect(this.welcomeView.dashboard.emailsSection.list.exists(), 'Should have emails list visible').to.be.true;
-      expect(this.welcomeView.dashboard.emailsSection.emails.length, 'Should have all emails visible').to.equal(this.randomEmails.length);
+    it('should display emails', function () {
+      expect(this.welcomeView.emails.exists(), 'Should have emails section visible').to.be.true;
+      expect(this.welcomeView.emails.header.exists(), 'Should have emails header visible').to.be.true;
+      expect(this.welcomeView.emails.header.text(), 'Should display message about new emails').to.equal('You have 1 new emails:');
+      expect(this.welcomeView.emails.list.exists(), 'Should have emails list visible').to.be.true;
+      expect(this.welcomeView.emails.emails.length, 'Should have all emails visible').to.equal(this.randomEmails.length);
 
       this.randomEmails.forEach((randomEmail, index) => {
-        let email = this.welcomeView.dashboard.emailsSection.getEmailByIndex(index);
+        let email = this.welcomeView.emails.getEmailByIndex(index);
         expect(email.subject.text(), `Should display subject for email with index ${index}`).to.equal(randomEmail.subject);
         expect(email.sender.text(), `Should display sender for email with index ${index}`).to.equal(`from ${randomEmail.sender}`);
         expect(email.body.text(), `Should create body for email with index ${index}`).to.equal(`${randomEmail.body}`);
@@ -117,7 +116,7 @@ describe('Welcome view', function () {
       beforeEach(function () {
         this.emailService.markEmailAsRead.resolves({});
 
-        this.emailToOpen = this.welcomeView.dashboard.emailsSection.getEmailByIndex(0);
+        this.emailToOpen = this.welcomeView.emails.getEmailByIndex(0);
         this.emailToOpen.open();
         return Vue.nextTick();
       });
@@ -132,7 +131,7 @@ describe('Welcome view', function () {
 
       describe('and then opens another email', function () {
         beforeEach(function () {
-          this.nextEmailToOpen = this.welcomeView.dashboard.emailsSection.getEmailByIndex(1);
+          this.nextEmailToOpen = this.welcomeView.emails.getEmailByIndex(1);
           this.nextEmailToOpen.open();
           return Vue.nextTick();
         });
@@ -154,11 +153,11 @@ describe('Welcome view', function () {
       });
 
       it('should display message in header', function () {
-        expect(this.welcomeView.dashboard.emailsSection.header.text(), 'Should display message about no emails').to.equal('You have no unread emails');
+        expect(this.welcomeView.emails.header.text(), 'Should display message about no emails').to.equal('You have no unread emails');
       });
 
       it('should display list of emails', function () {
-        expect(this.welcomeView.dashboard.emailsSection.list.exists(), 'Should display emails list').to.be.true;
+        expect(this.welcomeView.emails.list.exists(), 'Should display emails list').to.be.true;
       });
     });
   });
@@ -176,10 +175,10 @@ describe('Welcome view', function () {
       expect(this.welcomeView.loadingError.text()).to.equal('An error occurred: Unexpected error while loading the profile');
     });
 
-    it('should not display loading indicator nor dashboard', function () {
+    it('should not display loading indicator nor emails', function () {
       expect(this.welcomeView.loading.exists(), 'Should not have loading indicator visible').to.be.false;
       expect(this.welcomeView.header.exists(), 'Should not have header visible').to.be.false;
-      expect(this.welcomeView.dashboard.exists(), 'Should not have dashboard visible').to.be.false;
+      expect(this.welcomeView.emails.exists(), 'Should not have emails visible').to.be.false;
     });
   });
 
@@ -196,10 +195,10 @@ describe('Welcome view', function () {
       expect(this.welcomeView.loadingError.text()).to.equal('An error occurred: Unexpected error while loading emails');
     });
 
-    it('should not display loading indicator nor dashboard', function () {
+    it('should not display loading indicator nor emails', function () {
       expect(this.welcomeView.loading.exists(), 'Should not have loading indicator visible').to.be.false;
       expect(this.welcomeView.header.exists(), 'Should not have header visible').to.be.false;
-      expect(this.welcomeView.dashboard.exists(), 'Should not have dashboard visible').to.be.false;
+      expect(this.welcomeView.emails.exists(), 'Should not have emails visible').to.be.false;
     });
   });
 });

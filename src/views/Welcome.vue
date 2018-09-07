@@ -1,8 +1,8 @@
 <template>
   <section class="c-welcome" tid="welcome" v-if="!isLoading && !loadingError">
     <h1 class="c-welcome__header" v-if="profile" tid="welcome__header">Welcome {{ profile | fullName }}!</h1>
-    <div tid="welcome__dashboard">
-      <dashboard :emails="emails" @open-email="onEmailOpen"></dashboard>
+    <div tid="welcome__emails">
+      <emails :emails="emails" @open-email="onEmailOpen"></emails>
     </div>
   </section>
   <div v-else-if="loadingError" tid="welcome_loading-error">
@@ -18,13 +18,13 @@ import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 
 import { LazyInject } from '@di';
-import Dashboard from '@/components/Dashboard';
+import Emails from '@/components/Emails';
 import { PROFILE_SERVICE_ID } from '@/services/profile';
 import { EMAIL_SERVICE_ID } from '@/services/email';
 import { fullName } from '@/filters/full-name';
 
 @Component({
-  components: { Dashboard },
+  components: { Emails },
   filters: { fullName }
 })
 export default class WelcomeView extends Vue {

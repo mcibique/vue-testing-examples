@@ -16,10 +16,10 @@
 }
 
 .c-about__content-wrapper {
-  background-color: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(4, 34, 62, 1);
+  background-color: var(--form-background-color);
+  border: 1px solid var(--form-border-color);
   border-radius: 0.4rem;
-  box-shadow: 0.3rem 0.3rem 0.4rem 0.1rem rgba(4, 34, 62, 1);
+  box-shadow: 0.3rem 0.3rem 0.4rem 0.1rem var(--form-border-color);
   padding: 0.5rem 2rem 4rem;
   min-width: 320px;
   text-align: center;

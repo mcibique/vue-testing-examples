@@ -25,6 +25,17 @@ export default class App extends Vue {
 </script>
 
 <style>
+:root {
+  --text-color: #333;
+  --active-color: 2, 116, 169;
+  --border-color: #ccc;
+  --header-footer-background-color: 17, 4, 62;
+  --main-background-color: 4, 34, 62;
+  --validation-error-color: #c00;
+  --form-background-color: rgba(255, 255, 255, 0.95);
+  --form-border-color: rgb(var(--main-background-color));
+}
+
 *,
 *:before,
 *:after {
@@ -36,7 +47,7 @@ html {
   font-family: Segoe UI, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #333;
+  color: var(--text-color);
   background-color: #fff;
 }
 
@@ -48,13 +59,13 @@ body {
   font-size: 1.6rem;
   background: radial-gradient(
     ellipse at center,
-    rgba(4, 34, 62, 0.7) 0%,
-    rgb(4, 34, 62) 100%
+    rgba(var(--main-background-color), 0.7) 0%,
+    rgb(var(--main-background-color)) 100%
   );
 }
 
 input {
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 2px;
   padding: 0.9rem;
   line-height: 2rem;
@@ -65,7 +76,7 @@ input {
 
 :focus,
 input:focus {
-  outline: rgb(2, 116, 169, 0.5) auto 0.5rem;
+  outline: rgba(var(--active-color), 0.5) auto 0.5rem;
 }
 
 label {
@@ -83,20 +94,20 @@ p {
 }
 
 a {
-  color: #333;
+  color: var(--text-color);
 }
 
 a:link,
 a:visited,
 a:hover,
 a:active {
-  color: rgb(2, 116, 169);
+  color: rgb(var(--active-color));
   text-decoration: underline;
 }
 
 a:hover,
 a:active {
-  color: rgba(2, 116, 169, 0.75);
+  color: rgba(var(--active-color), 0.75);
 }
 
 a:focus {
@@ -116,8 +127,8 @@ pre {
 }
 
 .c-app__header {
-  border-bottom: 1px solid rgba(17, 4, 62, 1);
-  background-color: rgba(17, 4, 62, 0.25);
+  border-bottom: 1px solid rgba(var(--header-footer-background-color), 1);
+  background-color: rgba(var(--header-footer-background-color), 0.25);
   padding: 2rem 4rem;
   text-align: right;
   min-height: 6rem;
@@ -132,7 +143,7 @@ pre {
 
 .c-app__footer {
   padding: 2rem 4rem;
-  border-top: 1px solid rgba(17, 4, 62, 1);
-  background-color: rgba(17, 4, 62, 0.25);
+  border-top: 1px solid rgba(var(--header-footer-background-color), 1);
+  background-color: rgba(var(--header-footer-background-color), 0.25);
 }
 </style>

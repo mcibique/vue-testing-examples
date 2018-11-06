@@ -20,5 +20,5 @@ yarn-error.log*
 *.sln
 *.sw*
 
-
+.nyc_output
 test/reports

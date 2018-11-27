@@ -16,6 +16,9 @@ module.exports = {
     'no-unused-expressions': 'off'
   },
   parserOptions: {
-    parser: 'babel-eslint'
+    parser: 'babel-eslint',
+    ecmaFeatures: {
+      legacyDecorators: true
+    }
   }
 };

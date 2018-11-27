@@ -2,6 +2,13 @@
   <button :class="[data.staticClass, 'c-button', { 'c-button--primary': !!props.primary }]" v-bind="data.attrs" v-on="listeners"><slot></slot></button>
 </template>
 
+<script>
+import { Component } from 'vue-property-decorator';
+
+@Component
+export default class MyButton {}
+</script>
+
 <style>
 .c-button {
   background: #fff;

@@ -1,4 +1,4 @@
-import 'babel-polyfill';
+import '@babel/polyfill';
 import 'reflect-metadata';
 import { Component } from 'vue-property-decorator';
 

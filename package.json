@@ -18,8 +18,8 @@
     }
   },
   "dependencies": {
+    "@babel/polyfill": "7.0.0",
     "axios": "0.18.0",
-    "babel-polyfill": "6.26.0",
     "inversify": "5.0.1",
     "inversify-inject-decorators": "3.1.0",
     "inversify-vanillajs-helpers": "2.0.0",

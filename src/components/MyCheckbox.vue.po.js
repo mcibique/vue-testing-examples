@@ -17,16 +17,16 @@ export default class MyCheckboxPageObj extends BasePageObj {
     return this.icon.trigger('click');
   }
 
-  isChecked () {
+  get isChecked () {
     return this.icon.classes().includes('c-checkbox__icon--checked');
   }
 
-  isFocused () {
+  get isFocused () {
     return this.icon.classes().includes('c-checkbox__icon--focused');
   }
 
   setChecked (newValue) {
-    if (this.isChecked() !== newValue) {
+    if (this.isChecked !== newValue) {
       this.check();
     }
   }

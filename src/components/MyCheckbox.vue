@@ -1,5 +1,5 @@
 <template>
-  <div class="c-checkbox">
+  <div class="c-checkbox" tid="c-checkbox">
     <input type="checkbox" class="c-checkbox__control" v-model="checkboxModel" :id="id" @focus="isFocused = true" @blur="isFocused = false" ref="hiddenInput">
     <span class="c-checkbox__icon" @click="toggle()" role="checkbox" :aria-checked="isChecked" :aria-labelledby="labelId" tid="c-checkbox__icon"
           :class="{ 'c-checkbox__icon--checked': isChecked, 'c-checkbox__icon--unchecked': !isChecked, 'c-checkbox__icon--focused': isFocused }"></span>
@@ -8,12 +8,16 @@
 </template>
 <script>
 import Vue from 'vue';
-import { Component, Model, Prop } from 'vue-property-decorator';
+import { Component, Model, Watch, Prop, Inject } from 'vue-property-decorator';
 import uniqueId from 'lodash/uniqueId';
+
+import MY_CHECKBOX_LIST_CONTEXT from './MyCheckboxListContext';
 
 @Component
 export default class MyCheckbox extends Vue {
   @Model('change') @Prop(Boolean) value;
+
+  @Inject({ from: MY_CHECKBOX_LIST_CONTEXT, default: null }) checkboxList;
 
   id = uniqueId('my-checkbox-');
   labelId = `${this.id}-label`;
@@ -31,9 +35,32 @@ export default class MyCheckbox extends Vue {
     return !!this.checkboxModel;
   }
 
+  get isInList () {
+    return !!this.checkboxList;
+  }
+
+  created () {
+    if (this.isInList) {
+      this.checkboxList.registerCheckbox(this.id, this.checkboxModel);
+    }
+  }
+
+  destroyed () {
+    if (this.isInList) {
+      this.checkboxList.removeCheckbox(this.id);
+    }
+  }
+
   toggle () {
     this.checkboxModel = !this.checkboxModel;
     this.$refs.hiddenInput.focus();
+  }
+
+  @Watch('value', { immediate: true })
+  changed (newValue, oldValue) {
+    if (this.isInList && newValue !== oldValue) {
+      this.checkboxList.changeValue(this.id, this.value);
+    }
   }
 }
 </script>

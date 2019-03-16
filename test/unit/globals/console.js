@@ -5,6 +5,9 @@ beforeEach(function () {
   if (console.error.restore) {
     console.error.restore();
   }
+  if (console.error.reset) {
+    console.error.reset();
+  }
   sinon.spy(console, 'error');
 });
 

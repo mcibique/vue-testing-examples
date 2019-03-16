@@ -60,7 +60,7 @@ describe('Login view', function () {
     expect(loginView.validationError.exists(), 'Validation error should not be visible').to.be.false;
     expect(loginView.usernameInput.element.value, 'Username should be initialized with empty value').to.equal('');
     expect(loginView.passwordInput.element.value, 'Password should be initialized with empty value').to.equal('');
-    expect(loginView.rememberMeCheckbox.isChecked(), 'Remember me should be initialized without any value').to.be.false;
+    expect(loginView.rememberMeCheckbox.isChecked, 'Remember me should be initialized without any value').to.be.false;
     expect(loginView.submitButton.attributes().disabled, 'Submit button should be enabled').to.be.undefined;
   });
 

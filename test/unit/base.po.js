@@ -31,6 +31,10 @@ export default class BasePageObj {
     return this.wrapper.html();
   }
 
+  setProps (...args) {
+    return this.wrapper.setProps(...args);
+  }
+
   text () {
     return this.wrapper.text();
   }

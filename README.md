@@ -548,7 +548,7 @@ class LoginView extends Vue {
 
 #### 1. Mocking behavior in development
 
-Let's say that you have email service which sends an email to given address, but you don't want to send real emails in DEV/TEST/UAT environments. You can create two different implementations of the same interface and register them conditionally:
+Let's say that you have an email service which sends emails to given address, but you don't want to send real emails in DEV/TEST/UAT environments. You can create two different implementations of the same interface and register them conditionally:
 
 ```js
 class RealEmailService {
@@ -572,6 +572,7 @@ if (process.env.NODE_ENV === "production") {
   container.bind("emailService").to(FakeEmailService);
 }
 
+// order.service.js
 @Register("orderService", ["emailService"])
 class OrderService {
   constructor(emailService) {
@@ -1620,7 +1621,7 @@ We can use this component in any form:
 <my-checkbox v-model="value"></my-checkbox>
 ```
 
-If the component doesn't have `v-model` we can do all test just using `mount(MyCheckbox, { ... })`, but unfortunately, the component supports `v-model` and there is no way how model can be passed to the `mount()`. What we have to do is to create another component which uses the component under the test inside his template. The wrapper can also provide a value which will be passed to the v-model and which will be updated:
+If the component doesn't have `v-model` we can do all test just using `mount(MyCheckbox, { ... })`, but unfortunately, the component supports `v-model` and there is no way how model can be passed to the `mount()`. What we have to do is to create another component which uses the component under the test inside its template. The wrapper can also provide a value which will be passed to the v-model and which will be updated:
 
 ```js
 beforeEach(function () {

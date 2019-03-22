@@ -12,10 +12,8 @@
     "test:watch": "npm run test -- --watch",
     "lint": "vue-cli-service lint"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+  "gitHooks": {
+    "pre-commit": "lint-staged"
   },
   "dependencies": {
     "@babel/runtime": "7.4.2",
@@ -45,7 +43,6 @@
     "chai-as-promised": "7.1.1",
     "eslint": "5.15.3",
     "flush-promises": "1.0.2",
-    "husky": "1.3.1",
     "jsdom": "14.0.0",
     "lint-staged": "8.1.5",
     "lolex": "3.1.0",

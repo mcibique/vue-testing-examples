@@ -6,7 +6,7 @@
   "license": "MIT",
   "author": "mcibique (https://github.com/mcibique)",
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --open",
     "build": "vue-cli-service build",
     "test": "nyc vue-cli-service test:unit 'src/**/*.spec.js' --include ./src/bootstrap.js ./test/unit/index.js",
     "test:watch": "npm run test -- --watch",

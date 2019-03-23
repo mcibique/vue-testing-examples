@@ -41,6 +41,9 @@ Topics already covered:
 * [Using flush-promises vs Vue.nextTick()](#using-flush-promises-vs-vuenexttick)
 * [Testing navigation guards](#testing-navigation-guards)
   * [beforeRouteEnter](#beforerouteenter)
+* [Testing provide/inject](#testing-provideinject)
+  * [Testing component that injects values](#testing-component-that-injects-values)
+  * [Testing component that provides values](#testing-component-that-provides-values)
 
 ## Testing pyramid, dumb vs smart components, mount vs shallow
 
@@ -1702,3 +1705,100 @@ it('should trigger beforeRouteEnter event', function () {
 ```
 
 This approach requires a knowledge about VUE and router internals and **can stop working** after every minor refactoring done by the VUE team. I do not recommend to use it unless guys from VUE provide some helper function in [@vue/test-utils](https://github.com/vuejs/vue-test-utils) library for setting it up using cleaner way.
+
+## Testing provide/inject
+
+_NOTE_: Before you even start developing your components using `provide`/`inject`, please consider if you really need them. It is mentioned in [the official documentation](https://vuejs.org/v2/api/#provide-inject) that this feature is suitable only for certain scenarios. Also consider that both, `provide` and `inject` and not [reactive](https://vuejs.org/v2/guide/reactivity.html#ad), which only introduces limitation to the development that you have to keep in mind. Using "traditional" [one-way data flow](https://vuejs.org/v2/guide/components-props.html#One-Way-Data-Flow) between components may be more appropriate for your use case.
+
+For the testing purposes, let's have three components which communicate using `provide`/`inject`:
+
+```html
+<my-checkbox-list>
+  <my-checkbox-list-status></my-checkbox-list-status>
+  <my-checkbox v-model="value1">Checkbox 1</my-checkbox>
+  <my-checkbox v-model="value2">Checkbox 2</my-checkbox>
+  <my-checkbox v-model="value3">Checkbox 3</my-checkbox>
+</my-checkbox-list>
+```
+
+... where `my-checkbox-list` is a wrapper providing an API for `my-checkbox`es to tell the list they are checked or not, and the `my-checkbox-list-status` is a component for displaying nice message to the user how many checkboxes have already been checked, e.g. `"2 out of 3 item(s) have been selected."`
+
+### Testing component that injects values
+
+For a component that only injects values we can use [provide option](https://vue-test-utils.vuejs.org/api/options.html#provide) for `mount` function:
+
+```js
+beforeEach(function () {
+  this.mountMyCheckboxListStatus = function (myCheckboxListMock, options) {
+    let provide = { "checkboxList": myCheckboxListMock };
+    let wrapper = mount(MyCheckboxListStatus, { provide, ...options });
+    return new MyCheckboxListStatusPageObj(wrapper);
+  };
+});
+
+it('should render the message', function () {
+  let myCheckboxListMock = { numberOfItems: 6, numberOfSelectedItems: 3 };
+  let myCheckboxListStatus = this.mountCheckboxListStatus(myCheckboxListMock);
+  expect(myCheckboxListStatus.message).to.equal("3 out of 6 item(s) have been selected");
+});
+```
+
+### Testing component that provides values
+
+For a component that provides values is better to use integration tests and test all of their interactions together.
+
+```js
+beforeEach(function () {
+  this.mountMyCheckboxList = function (template, options) {
+    // we are going to mount a string template, thus we need to convert it into something that Vue can understand:
+    let Wrapper = Vue.extend({
+      ...compileToFunctions(template),
+      components: { MyCheckboxList, MyCheckbox, MyCheckboxListStatus }
+    });
+
+    let wrapper = mount(Wrapper, { ...options });
+    return new MyCheckboxListPageObj(wrapper);
+  };
+});
+
+describe('when there are checkboxes in the list', function () {
+  beforeEach(function () {
+    // instead of testing individual components, create a template with all of them
+    this.myCheckboxList = this.mountMyCheckboxList(
+      `<my-checkbox-list>
+        <my-checkbox-list-status></my-checkbox-list-status>
+        <my-checkbox v-model="checkbox1">Checkbox 1</my-checkbox>
+      </my-checkbox-list>`,
+      {
+        data () {
+          return { checkbox1: false };
+        }
+      }
+    );
+  });
+
+  it('should render the checkbox list status', function () {
+    // test the initial status of the my-checkbox-list-status component
+    expect(this.myCheckboxList.status.text()).to.equal('You selected 0 item(s).');
+  });
+
+  it('should render checkboxes', function () {
+    // test the initial status of the my-checkbox component
+    expect(this.myCheckboxList.checkboxes.length).to.equal(1);
+    expect(this.myCheckboxList.checkboxes[0].isChecked).to.be.false;
+  });
+
+  describe('and the user changes the checkbox value', function () {
+    beforeEach(function () {
+      // clicking the my-checkbox should trigger the provide API in the parent my-checkbox-list.
+      this.myCheckboxList.checkboxes[0].check();
+      return Vue.nextTick();
+    });
+
+    it('should update the message in the checkbox list status', function () {
+      // the change in the parent should appear in the my-checkbox-list-status component
+      expect(this.myCheckboxList.status.text()).to.equal('You selected 1 item(s).');
+    });
+  });
+});
+```

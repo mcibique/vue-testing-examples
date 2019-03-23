@@ -5,7 +5,6 @@
 1. Testing directive
 1. Writing complex integration test for a component
 1. Mocking router
-1. Inject/Provide
 1. Scoped slots
 1. Inversify and mocking router/store in tests
 1. Test coverage

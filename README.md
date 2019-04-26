@@ -91,7 +91,7 @@ A store should have tested all actions and mutations using unit tests. Mock all 
 
 ### Router
 
-If there is a logic in your router config (e.g. `beforeRouteEnter`), test this logic in unit tests. If the same logic uses a store, mock it too. Everything else should be mocked as well. Routing between components should be tested in integration tests in smart components or in E2E tests.
+If there is logic in your router config (e.g. `beforeRouteEnter`), test this logic in unit tests. If the same logic uses a store, mock it. Everything else should be mocked as well. Routing between components should be tested in integration tests in smart components or in E2E tests.
 
 |What            |Test type  |shallow/mount|Service calls|API calls|store      |router     |
 |----------------|-----------|-------------|-------------|---------|-----------|-----------|

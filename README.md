@@ -116,7 +116,7 @@ class AuthService {
 }
 ```
 
-For testing different scenarios (200, 400, 404 status codes) we can use [axios-mock-adapter](https://www.npmjs.com/package/axios-mock-adapter), but there are also other alternatives available (e.g. [moxios](https://www.npmjs.com/package/moxios)).
+For testing different scenarios (200, 400, 404 status codes) we can use [axios-mock-adapter](https://www.npmjs.com/package/axios-mock-adapter), but there are also alternatives available (e.g. [moxios](https://www.npmjs.com/package/moxios)).
 
 ```js
 import axios from 'axios';

@@ -144,7 +144,7 @@ it('should call external API with given params', function () {
 
 ### Dos
 
-* When defining mock, always try to set expected params or body (be as much specific as it gets). It prevents your tests going green because of the functionality under test was accidentally called from other parts of your code.
+* When defining mock, always try to set expected params or body (be as much specific as possible). It prevents your tests going green because of the functionality under test was accidentally called from other parts of your code.
 * Always specify the number of calls you expect to happen. Use `replyOnce` when you know the external call should happen only once (99% test cases). If your code has a bug and calls API twice, you will spot the problem because the 2nd call will fail with `Error: Request failed with status code 404`.
 * Always restore axios back to the state before your test was running. Use `axios.restore()` function to do so.
 * Verify after each test that all registered mocks have been called using `axios.verifyNoOutstandingExpectation()`. It can catch issues when your test didn't executed part of the code you expected, but still went green. You can implement your own expectation if you need to, this is the current implementation:
@@ -182,7 +182,7 @@ If you really need to check whether the `get` or `post` have been called, use ra
 
 ## Assert console.error() has not been called
 
-Let's have a test expecting no action to happen (e.g. a disabled button that should not be enabled while an input is empty). The test loads the form and then it checks if the button is disabled. Everything goes green and everybody's happy. But there is a different problem your test didn't cover: the button was not kept disabled because of the application logic, but because of a javascript error somewhere in your code. To catch cases like this, make sure, after each test, that `console.error()` has not been called. You can spy on `error` function and verify expectations in `afterEach()`.
+Let's have a test expecting no action to happen (e.g. a disabled button that should not be enabled while an input is empty). The test loads the form and then it checks if the button is disabled. Everything goes green and everybody's happy. But there is a different problem, your test didn't cover: the button was not kept disabled because of the application logic, but because of a javascript error somewhere in your code. To catch cases like this, make sure, after each test, that `console.error()` has not been called. You can spy on `error` function and verify expectations in `afterEach()`.
 
 ```js
 import sinon from 'sinon';
@@ -192,7 +192,7 @@ beforeEach(function () {
   if (console.error.restore) { // <- check whether the spy isn't already attached
     console.error.restore(); // restore it if so. this might happen if previous test crashed the test runner (e.g. Syntax Error in your spec file)
   }
-  sinon.spy(console, 'error'); // use only spy so the original functionality is still preserved, don't stub the error function
+  sinon.spy(console, 'error'); // use only spy so the original functionality is preserved, don't stub the error function
 });
 
 afterEach(function () {

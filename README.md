@@ -203,7 +203,7 @@ afterEach(function () {
 
 ## Page objects pattern
 
-If you are new to the page objects, please follow [great overview](https://martinfowler.com/bliki/PageObject.html) written by [Martin Fowler](https://martinfowler.com/). The basic idea is to keep things [DRY](https://code.tutsplus.com/tutorials/3-key-software-principles-you-must-understand--net-25161) and reusable, but there are few more things to mention: refactoring and readability. Let's have a page object like this:
+If you are new to the page objects, please follow [great overview](https://martinfowler.com/bliki/PageObject.html) written by [Martin Fowler](https://martinfowler.com/). The basic idea is to keep things [DRY](https://code.tutsplus.com/tutorials/3-key-software-principles-you-must-understand--net-25161) and reusable, but there are more things to mention: refactoring and readability. Let's have a page object like this:
 
 ```js
 class LoginPage {
@@ -227,11 +227,11 @@ class LoginPage {
 }
 ```
 
-The example above has following issues:
+The example above has the following issues:
 
 * Every time an ID or CSS class change, you have to update the page object.
-* If you want to remove ID from the username, you have to check whether is it used in tests or not.
-* If you want to remove a CSS class, you have to check whether is it used in tests or not. If it's used in the test, you have to keep class assigned to the element but the class will no longer exist in CSS file. This causes many confusions.
+* If you want to remove ID from the username, you have to check whether it is used in tests or not.
+* If you want to remove a CSS class, you have to check whether it is used in tests or not. If it's used in the test, you have to keep class assigned to the element but the class will no longer exist in CSS file. This causes many confusions.
 * Every time a new object is added to the form, it breaks the XPath for the submit button. Because of it, using XPath instead of CSS selector is always considered a bad idea.
 
 None of these is giving you the confidence to do minor/major refactoring of your CSS or HTML because you might break the tests. To remove this coupling, you can give a unique identifier for your element through `data-` attributes introduces in [HTML5](https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes) or you can use your own attribute. You can choose a name of the attribute such as `data-test-id`, `data-qa` or simply `tid` if you prefer short names. The page object will look like then:
@@ -266,7 +266,7 @@ function findByTId(tid) {
 }
 ```
 
-Adding `*` into the selector allows us to assign more than one identifier to a single element and having better versatility in your page objects, e.g.:
+Adding `*` into the selector allows us to assign more than one identifier to a single element and a better versatility in your page objects, e.g.:
 
 ```html
 <nav>
@@ -306,7 +306,7 @@ class Nav {
 
 ## Dependency Injection
 
-Mocking dependencies and imports in tests might be really tedious. Using [inject-loader](https://github.com/plasticine/inject-loader) or [proxyquire](https://github.com/thlorenz/proxyquire) can help a lot but requires lots of ugly coding. Another option is to involve dependency injection, such as [inversify](https://github.com/inversify/InversifyJS). They are primarily focused on Typescript but they support [vanilla JS](https://github.com/inversify/inversify-vanillajs-helpers) too (without any trade offs). In scenarios where you don't have control over instantiating components and services, there is another very handy [toolbox](https://github.com/inversify/inversify-inject-decorators) which gives you a set of decorators usable in Vue components.
+Mocking dependencies and imports in tests might be really tedious. Using [inject-loader](https://github.com/plasticine/inject-loader) or [proxyquire](https://github.com/thlorenz/proxyquire) can help a lot but it requires lots of ugly code. Another option is to involve dependency injection, such as [inversify](https://github.com/inversify/InversifyJS). They are primarily focused on Typescript but they support [vanilla JS](https://github.com/inversify/inversify-vanillajs-helpers) too (without any trade offs). In scenarios where you don't have control over instantiating components and services, there is another very handy [toolbox](https://github.com/inversify/inversify-inject-decorators) which gives you a set of decorators usable in Vue components.
 
 ### Setting up DI in VUE
 

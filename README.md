@@ -314,11 +314,11 @@ We need to create a container instance for holding all registered injections. We
 
 ```js
 import { Container } from 'inversify';
-let container = new Container();
+const container = new Container();
 export default container;
 ```
 
-and then just execute it in the bootstrap phase of the application:
+and then just execute it in the application bootstrap:
 
 ```js
 import './di';
@@ -339,7 +339,7 @@ export default class AuthService {
 ```js
 import { Container } from 'inversify';
 import AuthService from 'services/auth';
-let container = new Container();
+const container = new Container();
 container.bind('authService').to(AuthService);
 export default container;
 ```
@@ -361,7 +361,7 @@ class LoginView extends Vue {
 
 There are a couple of issues with this approach:
 
-1. If we register all our services in `di.js`, then we nullified the code splitting because everything is required during the application bootstrap. To solve this issue, let's register service into the container only when is required for the first time:
+1. If we register all our services in `di.js`, then we nullified the code splitting because everything is required during the application bootstrap. To solve this issue, let's register a service into the container only when it is required for the first time:
 
 ```js
 import container from './di';
@@ -415,7 +415,7 @@ Decorators can help us to eliminate lots of code repetition and make our code cl
 
 #### @Register decorator
 
-The @Register() decorator is just a syntactic sugar for registering classes to the container. In Typescript, you would have `@injectable` and `@inject` decorators available, but this project is not using TS, it's plain JS. The maintainers of InversifyJS have provided another set of decorators/helpers called [inversify-vanillajs-helpers](https://github.com/inversify/inversify-vanillajs-helpers), for using inversify without TS. They just need a unique identifier for each registered class, because they cannot tell which parameter in constructor belongs to which registered class.
+The @Register() decorator is just a syntactic sugar for registering classes to the container. In Typescript, you would have `@injectable` and `@inject` decorators available, but this project is not using TS, it's plain JS. The InversifyJS maintainers have provided another set of decorators/helpers called [inversify-vanillajs-helpers](https://github.com/inversify/inversify-vanillajs-helpers), for using inversify without TS. They just need a unique identifier for each registered class, because they cannot tell which parameter in constructor belongs to which registered class.
 
 Let's have classes defined as:
 
@@ -443,7 +443,7 @@ container.bind("c").to(C);
 container.bind("b").to(B);
 container.bind("a").to(A);
 
-let c = container.get("c");
+const c = container.get("c");
 console.log(c instanceof C); // true
 ```
 
@@ -459,11 +459,11 @@ container.bind("a").to(A);
 In TS, this is done by `@injectable` and `@inject` decorators automatically. Doing this for every class in your project would be annoying, so let's use rather a vanillajs helper:
 
 ```js
-let register = helpers.register(container);
+const register = helpers.register(container);
 register("a", ["b", "c"])(A);
 ```
 
-^^ this helper called `register` is now coupled with the container and does exactly the same thing as a previous example. And the helper can also be used as a decorator:
+^^ this helper called `register` is now coupled with the container and does exactly the same thing as the previous example, and the helper can also be used as a decorator:
 
 ```js
 @register("a", ["b", "c"])
@@ -472,7 +472,7 @@ class A {
 }
 ```
 
-... is equivalent of calling:
+... is equivalent to:
 
 ```js
 register("a", ["b", "c"])(
@@ -486,8 +486,8 @@ In this project, the decorators are defined in `di.js`:
 ```js
 import { helpers } from 'inversify-vanillajs-helpers';
 
-let container = new Container();
-let register = helpers.register(container);
+const container = new Container();
+const register = helpers.register(container);
 
 export { register as Register } // we are exporting decorator with capital R because other decorators we are already using (e.g. for Vuex) also have a capital letter
 ```

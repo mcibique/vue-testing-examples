@@ -1291,7 +1291,7 @@ export function createStore(vueInstance = Vue) {
 
 ### Mocking store for router
 
-If the smart component is also using a router, it is very likely that the router needs an access to the store too (usually in navigation guards). How can we give the store instance to the router? It cannot be just imported because the store is created in `beforeEach`, but it can be given via Dependency Injection:
+If the smart component is also using a router, it is very likely that the router needs access to the store too (usually in navigation guards). How can we give the store instance to the router? It can't be just imported because the store is created in `beforeEach`, but it can be given via Dependency Injection:
 
 ```js
 import container from './di';
@@ -1304,7 +1304,7 @@ beforeEach(function () {
 });
 ```
 
-Now anywhere in your code `container.get(STORE_ID)` will receive your current instance of the store created in test set up.
+Now anywhere in your code `container.get(STORE_ID)` will receive the current store instance created in test set up.
 
 ```js
 import { STORE_ID } from './store';
@@ -1315,9 +1315,9 @@ export default new VueRouter({
       path: '/logout',
       name: 'logout',
       beforeEnter (to, from, next) {
-        let store = container.get(STORE_ID); // will get store from currently running test
+        let store = container.get(STORE_ID); // will get the store from currently running test
         if (store.state.auth.token) { // can be preset by the test set up
-          store.dispatch('auth/logout'); // can be spy on whether it was called or not
+          store.dispatch('auth/logout'); // can be spied on whether it was called or not
         }
       }
     }

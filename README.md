@@ -519,25 +519,25 @@ Check out documentation for [inversify-vanillajs-helpers](https://github.com/inv
 
 #### @LazyInject decorator
 
-The LazyInject decorator can be very useful for injecting services into the VUE components. Because we don't have control over instantiating of the component, we need to inject services into properties. Let's import the decorator from [inversify-inject-decorators](https://github.com/inversify/inversify-inject-decorators) and make it available in `di.js` first:
+The LazyInject decorator can be very useful for injecting services into the VUE components, as we don't have control over the component instantiation we need to inject services into properties. Let's import the decorator from [inversify-inject-decorators](https://github.com/inversify/inversify-inject-decorators) and make it available in `di.js` first:
 
 ```js
 import getDecorators from 'inversify-inject-decorators';
 
-let container = new Container();
-let { lazyInject } = getDecorators(container);
+const container = new Container();
+const { lazyInject } = getDecorators(container);
 
 export { lazyInject as LazyInject }
 ```
 
-`di.js` creates new decorator LazyInject which is tied with the container where everything is registered. Now we can adjust code in VUE component:
+`di.js` creates a new decorator LazyInject which is tied with the container where everything is registered. Now we can adjust the code in the VUE component:
 
 ```js
 import { LazyInject } from './di';
 import { AUTH_SERVICE_ID } from './services/auth';
 
 class LoginView extends Vue {
-  @LazyInject(AUTH_SERVICE_ID) authService; // internally asks the container to get instance of the AUTH_SERVICE_ID
+  @LazyInject(AUTH_SERVICE_ID) authService; // internally asks the container to get an instance of the AUTH_SERVICE_ID
 
   login (username, password) {
     return this.authService.login(username, password);
@@ -551,7 +551,7 @@ class LoginView extends Vue {
 
 #### 1. Mocking behavior in development
 
-Let's say that you have an email service which sends emails to given address, but you don't want to send real emails in DEV/TEST/UAT environments. You can create two different implementations of the same interface and register them conditionally:
+Let's say that you have an email service which sends emails to a given address, but you don't want to send real emails in DEV/TEST environments. You can create two different implementations of the same interface and register them conditionally:
 
 ```js
 class RealEmailService {
@@ -579,7 +579,7 @@ if (process.env.NODE_ENV === "production") {
 @Register("orderService", ["emailService"])
 class OrderService {
   constructor(emailService) {
-    this.emailService = emailService; // this would be real implementation in production, but fake in other environments
+    this.emailService = emailService; // this would be a real implementation in production, but fake in other environments
   }
 
   registerOrder(order) {
@@ -630,7 +630,7 @@ Replacing registered classes allows you to control dependencies of the service u
 
 #### Mocking service dependencies
 
-Let's have a service which depends on other services. Before we even start writing tests, make sure that the dependency is really needed. Huge dependency trees are always hard to test and hard to maintain because of the complexity. You can try to decouple the services and separate their logic. If it's not possible, then you should always mock other services out. Consider following services:
+Let's have a service which depends on other services. Before we even start writing tests, make sure that the dependency is really needed. Huge dependency trees are always hard to test and hard to maintain because of the complexity. You can try to decouple the services and separate their logic. If it's not possible, then you should always mock other services out. Consider the following services:
 
 ```js
 class ServiceA {
@@ -672,33 +672,33 @@ describe('Service A', function () {
 
 A couple of issues here:
 
-1. You have to be aware of service instantiation order, `serviceD` must be created before `serviceE` and `serviceB`, `serviceE` before `serviceC` and once you have all dependencies ready, you can finally call the constructor of `ServiceA`. If dependency tree changes, you have to adjust all tests.
-1. Every time new service is added to the tree, you have to update the tests too.
+1. You have to be aware of the service instantiation order, `serviceD` must be created before `serviceE` and `serviceB`, `serviceE` before `serviceC` and once you have all dependencies ready, you can finally call the constructor of `ServiceA`. If the dependency tree changes, you have to adjust all tests.
+2. Every time a new service is added to the tree, you have to update the tests too.
 
 When you want to mock any service in the tree, consider using a fake object with stub methods instead of calling a real constructor. If you are using [sinon](https://www.npmjs.com/package/sinon), check out their [mock API](http://sinonjs.org/releases/v4.5.0/mocks/) which enables lots of nice features and gives you better control over your mocked services.
 
 ```js
 describe('Service A', function () {
   beforeEach(function () {
-    let serviceD = {}; // instead of using real ServiceD constructor, create an empty object and fake all methods that are used from serviceA
+    const serviceD = {}; // instead of using real ServiceD constructor, create an empty object and fake all methods that are used from serviceA
     serviceD.doSomething = sinon.spy();
     this.serviceDMock = serviceD;
 
-    let serviceE = new ServiceE(serviceD);
-    let serviceB = new ServiceB(serviceD);
-    let serviceC = new ServiceC(serviceE);
-    let serviceA = new ServiceA(serviceB, serviceC);
+    const serviceE = new ServiceE(serviceD);
+    const serviceB = new ServiceB(serviceD);
+    const serviceC = new ServiceC(serviceE);
+    const serviceA = new ServiceA(serviceB, serviceC);
 
     this.serviceBMock = sinon.mock(serviceB); // mock serviceB using sinon.mock API. this will create Proxy object which you can configure to expect calls on serviceB instance.
   });
 
   afterEach(function () {
-    this.serviceBMock.verify(); // verify all expectations have been called
+    this.serviceBMock.verify(); // verify if all expectations have been called
   });
 
   it('should do something', function () {
-    let doSomethingSpy = this.serviceBMock.expects('doSomething').returns(42).once();
-    let result = serviceA.runMethodUnderTest(24); // let's assume that this method calls serviceB and serviceD
+    const doSomethingSpy = this.serviceBMock.expects('doSomething').returns(42).once();
+    const result = serviceA.runMethodUnderTest(24); // let's assume that this method calls serviceB and serviceD
     expect(result).to.equal(66);
     expect(doSomethingSpy).to.have.been.calledWith(24);
     expect(this.serviceDMock.doSomething).to.have.been.calledWith(24);
@@ -706,7 +706,7 @@ describe('Service A', function () {
 });
 ```
 
-Now, let's do better approach and let DI container to resolve our dependencies.
+Now, let's do a better approach and let the DI container to resolve our dependencies.
 
 ```js
 import { Register } from './di';
@@ -735,29 +735,29 @@ class ServiceE {
 }
 ```
 
-... and then in spec file you can just type
+... and then in the spec file you can just type:
 
 ```js
 import container from './di';
 
 describe('Service A', function () {
   beforeEach(function () {
-    let serviceA = container.get('serviceA');
+    const serviceA = container.get('serviceA');
   });
 });
 ```
 
-It's much nicer now, but wait, the mocking ability is now gone. How `serviceC` can be mocked during execution of these tests? The service registration in DI container can be replaced with our own mock.
+It's much cleaner now, but wait, the mocking ability is now gone. How `serviceC` can be mocked during execution of these tests? The answer to that is simple, the service registration in the DI container can be replaced with our own mock.
 
 ```js
 import container from './di';
 
 describe('Service A', function () {
   beforeEach(function () {
-    let serviceC = container.get('serviceC');
+    const serviceC = container.get('serviceC');
     this.serviceCMock = sinon.mock(serviceC);
     container.rebind('serviceC').toConstantValue(serviceC); // removes old registered class and replaces it with singleton constant value
-    let serviceA = container.get('serviceA');
+    const serviceA = container.get('serviceA');
   });
 
   afterEach(function () {
@@ -765,15 +765,15 @@ describe('Service A', function () {
   });
 
   it('should do something', function () {
-    let doSomethingSpy = this.serviceCMock.expects('doSomething').returns(42).once();
-    let result = serviceA.runMethodUnderTest(24); // let's assume that this method calls serviceC
+    const doSomethingSpy = this.serviceCMock.expects('doSomething').returns(42).once();
+    const result = serviceA.runMethodUnderTest(24); // let's assume that this method calls serviceC
     expect(result).to.equal(66);
     expect(doSomethingSpy).to.have.been.calledWith(24);
   });
 });
 ```
 
-Everything that test changes in the container registration should be restored after the test is done, otherwise changes might affect the following test. You can achieve this by using built-in functionality in inversify called [snapshots](https://github.com/inversify/InversifyJS/blob/master/wiki/container_snapshots.md). Create a snapshot before you perform changes to registration and restore it back to normal after your test is done.
+Everything that the test changes in the container registration should be restored after the test is done, otherwise changes might affect the next test execution. You can achieve this by using the built-in functionality in the inversify package called [snapshots](https://github.com/inversify/InversifyJS/blob/master/wiki/container_snapshots.md). Create a snapshot before you perform changes to registration and restore it back to normal after your test is done.
 
 ```js
 import container from './di';
@@ -816,7 +816,7 @@ afterEach(function () {
 }
 ```
 
-If you are using `--watch` mode, files included are not executed after any change, so the better solution is to import this file at the top of your spec file instead.
+If you are using `--watch` mode, files included with the flag `--include` are not hot reloaded after changing it's content, to overcome this problem, the solution is to import the file at the top of your spec file.
 
 #### Mocking global objects
 

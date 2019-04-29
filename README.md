@@ -1327,11 +1327,11 @@ export default new VueRouter({
 
 ### Mocking actions, mutations and getters
 
-There still can be a scenario when using real store might be a problem and you would like to mock some parts. Mocking an action can be achieved by stubbing the dispatch function provided by the store:
+There is a scenario still, when using a real store might be a problem, and you would like to mock some part of it. Mocking an action can be achieved by stubbing the dispatch function provided by the store:
 
 ```js
 beforeEach(function () {
-  let dispatchStub = sinon.stub(this.store, ['dispatch']);
+  const dispatchStub = sinon.stub(this.store, ['dispatch']);
   dispatchStub.callThrough(); // allow other actions to be executed
   dispatchStub.withArgs('auth/login').resolves(42); // only if dispatch has been invoked for 'auth/login' then return resolved Promise with custom result
 });
@@ -1345,11 +1345,11 @@ it('should do something', function () {
 });
 ```
 
-Mutations are very similar to actions, but instead of dispatch, we are going to stub commit:
+Mutations are similar to actions, but instead of dispatch, we are going to stub commit:
 
 ```js
 beforeEach(function () {
-  let commitStub = sinon.stub(this.store, ['commit']);
+  const commitStub = sinon.stub(this.store, ['commit']);
   commitStub.callThrough(); // allow other mutations to be executed
   commitStub.withArgs('setToken').callsFake(x => x);
 });
@@ -1363,7 +1363,7 @@ it('should do something', function () {
 });
 ```
 
-Getters are little bit tougher and they completely resist any attempt to override them. Getters are unfortunately configured as non-configurable when store is created. That means attempts like these won't help us:
+Getters are a little bit tougher and they completely resist any attempt to override them. Getters are unfortunately configured as non-configurable when the store is created. That means attempts like these won't help us:
 
 ```js
 beforeEach(function () {
@@ -1383,13 +1383,13 @@ beforeEach(function () {
 });
 ```
 
-It's not over yet, the `getters` property is not protected, that means we can replaced whole `getters` with mock which we can control over. We can use [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) as a man-in-the-middle which will be returning mocked getters or original ones based on the configuration:
+It's not over yet, the `getters` property is not protected, that means we can replaced whole `getters` with mock which we can control over. We can use [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) as a man-in-the-middle which will return a mocked getter (or the original one, it depends on the configuration):
 
 ```js
 beforeEach(function () {
-  let isAuthenticatedStub = sinon.stub().returns(true);
+  const isAuthenticatedStub = sinon.stub().returns(true);
 
-  let proxy = new Proxy(this.store.getters, {
+  const proxy = new Proxy(this.store.getters, {
     get(getters, key) {
       if (key === 'isAuthenticated') {
         return isAuthenticatedStub();
@@ -1407,18 +1407,18 @@ beforeEach(function () {
 });
 ```
 
-That's a lot of code for mocking only one getter so it would be better to extract it as a helper method or attach it to the `Store.prototype`. We can also make the name and the stub function's parameters so the function becomes more generic:
+That's a lot of code for mocking only one getter so it would be better to extract it as a helper method or attach it to the `Store.prototype`. in addition, We can make the name and the stub as a parameter so the function becomes more generic:
 
 ```js
 import { Store } from 'vuex';
 
 Store.prototype.mockGetter = function (name, stub) {
-  let store = this;
-  let mockedGetters = store.__mockedGetters = store.__mockedGetters || new Map();
+  const store = this;
+  const mockedGetters = store.__mockedGetters = store.__mockedGetters || new Map();
 
   mockedGetters.set(name, stub);
 
-  let gettersProxy = new Proxy(store.getters, {
+  const gettersProxy = new Proxy(store.getters, {
     get (getters, propName) {
       if (mockedGetters.has(propName)) {
         return mockedGetters.get(propName).call(store);
@@ -1440,12 +1440,12 @@ Then we can call in the test:
 
 ```js
 beforeEach(function () {
-  let isAuthenticatedStub = sinon.stub().returns(true);
+  const isAuthenticatedStub = sinon.stub().returns(true);
   this.store.mockGetter('isAuthenticated', isAuthenticatedStub);
 });
 ```
 
-You can see full implementation (including restoring mock back to original functionality) in [test/unit/utils/store.js](./test/unit/utils/store.js) file.
+You can see the full implementation (including restoring the mock back to the original functionality) in [test/unit/utils/store.js](./test/unit/utils/store.js) file.
 
 ### Setting up initial state in tests
 

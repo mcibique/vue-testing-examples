@@ -820,7 +820,7 @@ If you are using `--watch` mode, files included with the flag `--include` are no
 
 #### Mocking global objects
 
-Testing a functionality which requires global objects (`window.location` or `setTimeout`) is always a challenge. `window.location` is property which cannot be overridden but many tests require this property to be mocked. If you have a component which sets `window.location.href = 'some/new/url';`, then this code must be avoided in the tests, otherwise, it might break your current test execution (especially if you are running tests in the browser, e.g. with [karma-runner](https://www.npmjs.com/package/karma)). Dependency Injection can actually sort out this problem because we can inject the global object into your component and then we can pass custom object, without any restrictions, into a component in your tests.
+Testing a functionality which requires global objects (`window.location` or `setTimeout`) is always a challenge. `window.location` is a property that cannot be overridden but many tests require this property to be mocked. If you have a component which sets `window.location.href = 'some/new/url';`, then this code must be avoided in the test, otherwise, it might break your current test execution (especially if you are running tests in the browser, e.g. with [karma-runner](https://www.npmjs.com/package/karma)). Once again, the Dependency Injection can actually sort out this problem because we can inject the global object into your component and then we can pass custom object, without any restrictions, into a component in your test.
 
 ```js
 // di.js
@@ -832,7 +832,7 @@ import Vue from 'vue';
 import { LazyInject, WINDOW_ID } from './di';
 
 export default class MyComponent extends Vue {
-  @LazyInject(WINDOW_ID) window; // uses real window in PROD build, but can be mocked object in tests
+  @LazyInject(WINDOW_ID) window; // uses real window in PROD build, but can be mocked otherwise
 
   onClick() {
     this.window.location.href = 'some/new/url';
@@ -840,7 +840,7 @@ export default class MyComponent extends Vue {
 }
 ```
 
-... and your tests:
+... and your test:
 
 ```js
 // my-component.spec.js
@@ -859,7 +859,7 @@ afterEach(function () {
 });
 
 it('should navigate to new url', function () {
-  let myComponent = mount(MyComponent); // LazyInject in the component will inject windowMock instead of real window object
+  const myComponent = mount(MyComponent); // LazyInject in the component will inject windowMock instead of real window object
   myComponent.onClick(); // this call now operates with windowMock, so no real navigation happens in the browser
 
   expect(this.windowMock.location.href).to.equal('some/new/url'); // assert correct URL has been set

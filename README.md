@@ -868,7 +868,7 @@ it('should navigate to new url', function () {
 
 ## Time travelling and testing setTimeout
 
-There are several ways how to test `setTimeout` functions in your code. For all solutions, we are going to use LoginView component which displays some helpful links after 5s. Please don't judge the UX, it's for demonstration purposes:
+There are several ways on how to test `setTimeout` functions in your code. For all of them, we are going to use the LoginView component which displays some helpful links after 5s. Please don't judge the UX, it's for demonstration purposes:
 
 ```js
 class LoginView extends Vue {
@@ -884,11 +884,11 @@ class LoginView extends Vue {
 
 What we need to test:
 
-1. The initial status of the component (displaying help links should be off)
-2. Time travel to 2s after the component was created (check help links are still not being displayed)
-3. Time travel beyond 5s after the component was created (check help links are finally being displayed)
+1. The initial status of the component (displaying help links should be false)
+2. Time travel to 2s after the component was created (check if help links are still not being displayed)
+3. Time travel beyond 5s after the component was created (check if help links are being displayed)
 
-Let's start with easiest, but not very robust test solution:
+Let's start with the easiest, but not very robust test solution:
 
 ```js
 import { expect } from 'chai';
@@ -904,29 +904,29 @@ afterEach(function () {
 });
 
 it('should not display help links when a component was just created', function () {
-  let wrapper = mount(LoginView);
+  const wrapper = mount(LoginView);
   expect(wrapper.vm.displayHelp).to.be.false;
 });
 
 it('should display help links only after 5s', function () {
-  let wrapper = mount(LoginView);
+  const wrapper = mount(LoginView);
   expect(window.setTimeout).to.have.been.calledWith(sinon.match.any, 5000);
 });
 ```
 
-Simple, huh? Yes, it technically does test what was specified, but it's not very convincing. We did lots of shortcuts and we actually never checked whether `displayHelp` became true or not. The callback in `setTimeout` is part of the component's logic but it wasn't called at all. What if there is a logic somewhere in the code canceling the timeout? We also cannot check what is the state after 2s. Let's add a little more logic to our test:
+Simple, huh? Yes, it technically does test what was specified, but it's not very convincing. We did lots of shortcuts and we actually never checked whether `displayHelp` became true or not. The callback in `setTimeout` is part of the component's logic but it wasn't called at all. What if there is a logic somewhere in the code canceling the timeout? Besides we can't check what is the state after 2s. Let's add a little more logic to our test:
 
 ```js
 it('should display help links only after 5s', function () {
   window.setTimeout = sinon.stub().callsFake(fn => fn()); // any function that is passed to setTimeout is immediately executed
 
-  let wrapper = mount(LoginView);
+  const wrapper = mount(LoginView);
   expect(window.setTimeout).to.have.been.calledWith(sinon.match.any, 5000);
   expect(wrapper.vm.displayHelp).to.be.true;
 });
 ```
 
-This time callback is executed and our flag is set to true, but we created another problem. The callback is executed synchronously instead. That changes the order of execution which means we are not testing how code runs in production. And we still cannot test a state of our component after 2s and we are still unsure about timeout cancellation. Let's involve library which was built-in for this and has better control over `setTimeout` and it's execution: [lolex](https://github.com/sinonjs/lolex). Lolex has an API which can mock `setTimeout` and allows us to jump in time by 100ms, by 1s, by 1 day while our test is still executing a synchronous way (that means the test execution is not paused for 2s).
+This time the callback is executed and our flag is set to true, but we created another problem. The callback is executed synchronously instead. That changes the order of execution which means we are not testing how code runs in production. And we still cannot test a state of our component after 2s and we are still unsure about timeout cancellation. Let's involve a library that was built-in for this and has a better control over `setTimeout` and it's execution: [lolex](https://github.com/sinonjs/lolex). Lolex has an API which can mock `setTimeout` and allow us to jump in time by 100ms, by 1s, by 1 day while our test is executing (that means the test execution is not paused for 2s).
 
 ```js
 import { expect } from 'chai';
@@ -941,12 +941,12 @@ afterEach(function () {
 });
 
 it('should not display help links when a component was just created', function () {
-  let wrapper = mount(LoginView);
+  const wrapper = mount(LoginView);
   expect(wrapper.vm.displayHelp).to.be.false;
 });
 
 it('should not display help links before 5s elapsed', function () {
-  let wrapper = mount(LoginView);
+  const wrapper = mount(LoginView);
 
   this.clock.tick(2000);
   expect(wrapper.vm.displayHelp).to.be.false;
@@ -959,7 +959,8 @@ it('should not display help links before 5s elapsed', function () {
 });
 ```
 
-It's looking really nice now. The clock was able to move our test 2s ahead, checked the state, moved another 2s, checked, moved another 2s and did a final check. The callback was executed after multiple calls to `this.clock.tick()` and not synchronously during `created()` lifecycle event. Lolex also supports mocking of other global functions manipulating time, see their [API reference](https://github.com/sinonjs/lolex#api-reference).
+It's looking really nice now. The clock was able to move our test 2s ahead, checked the state, moved another 2s, checked, moved another 2s and did a final check. The callback was executed after multiple calls to `this.clock.tick()` and not synchronously during `created()` lifecycle event. Lolex also supports mocking other functions that manipulate time, see their [API reference](https://github.com/sinonjs/lolex#api-reference) for more information.
+
 Lolex is also capable to work with mocked global objects. Let's consider a scenario from [Mocking global objects](#mocking-global-objects):
 
 ```js
@@ -971,7 +972,7 @@ import container { WINDOW_ID } from './di';
 beforeEach(function () {
   container.snapshot();
 
-  let windowMock = {};
+  const windowMock = {};
   this.clock = lolex.install({ target: windowMock, toFake: ['setTimeout', 'clearTimeout'] }); // only fake timeout methods, don't waste time on other functions
   container.rebind(WINDOW_ID).toConstantValue(windowMock);
 });

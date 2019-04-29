@@ -987,9 +987,9 @@ afterEach(function () {
 
 ## Using stub services in dev mode
 
-Local development usually requires working back-end services (API) to be running on developers machine. While the API is still under heavy development, usually it's very unstable with lots of bugs (we all produce bugs). Front-end developers often use a technique of stubbing API and work with fake implementation instead. Just create a simple express server, develop your application against it and once the back-end API is ready, just unplug the stubs. Stubs also help to simulate scenarios which are really hard to achieve when using real back-end and DB.
+The local development usually requires a working back-end (API) running on the developer machine to populate data in the front-end. One problem to mention is that the API might be under development, leading to an unstable version, with bugs (we all produce bugs) and breaking changes in the data schema. Front-end developers often use a technique of stubbing API and work with fake implementation to overcome this situation. Just create a simple express server, develop your application against it and once the back-end API is ready, just unplug the stubs. Stubs also help to simulate scenarios which are really hard to achieve when using a real back-end.
 
-Instead of building your own express server, webpack offers another nice solution how to create stubs for your services. Let's have an `AuthService` which communicates with real back-end API:
+Instead of building your own express server, webpack offers another solution to create stubs for your services. As an example, let's build an `AuthService` which communicates with a real back-end:
 
 ```js
 import axios from 'axios';
@@ -1023,12 +1023,12 @@ export default class AuthServiceStub {
 }
 ```
 
-Now we need to solve a problem how and when to switch between these two services. How can we tell the app which one to use? Webpack has a nice feature called [resolve.extensions](https://webpack.js.org/configuration/resolve/#resolve-extensions) which is used as a decision point to determine extension of the file. In vue app, the value is set to `[".js", ".vue", ".json"]`. If you add `import AuthService from './auth-service'`, then webpack tries to find a file `./auth-service.js`, then `./auth-service.vue` and then `./auth-service.json`, the first match wins. So if we move our AuthServiceStub to another file `./auth-service.stub.js` and then tell the webpack to resolve extensions in order `[".stub.js", ".js", ".vue", ".json"]`, it will first try to import our stub service and only if a stub is not present, then it imports the real implementation.
+Now we need to solve a problem: how and when to switch between these two services. How can we tell the app which one to use? Webpack has a nice feature called [resolve.extensions](https://webpack.js.org/configuration/resolve/#resolve-extensions) which is used as a decision point to determine extension of the file. In vue app, the value is set to `[".js", ".vue", ".json"]`. If you add `import AuthService from './auth-service'`, then webpack tries to find a file `./auth-service.js`, then `./auth-service.vue` and then `./auth-service.json`, the first match wins. So if we move our AuthServiceStub to another file `./auth-service.stub.js` and then tell the webpack to resolve extensions in order `[".stub.js", ".js", ".vue", ".json"]`, it will first try to import our stub service and only if a stub is not present, it will import the real implementation.
 
 This logic can be controlled via [configuration](https://www.npmjs.com/package/webpack-chain), in `vue.config.js`.
 
 ```js
-let useServiceStub = !!process.env.npm_config_stub;
+const useServiceStub = !!process.env.npm_config_stub;
 
 module.exports = {
   chainWebpack (config) {
@@ -1039,7 +1039,7 @@ module.exports = {
 };
 ```
 
-`npm_config_*` is a feature of `npm run-script`. If you call any npm script with `--stub` flag, `process.env.npm_config_stub` will be set to true. In our vue app, there is already command for serving the app in `package.json`:
+`npm_config_*` is a feature of `npm run-script`. If you call any npm script with `--stub` flag, `process.env.npm_config_stub` will be set to true. In our vue app, there is a command for serving the app in `package.json`:
 
 ```bash
 npm run serve

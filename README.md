@@ -1089,7 +1089,9 @@ export default class AuthServiceStub extends AuthService {
 
 ### Mocking store for a smart component
 
-Usually smart component uses a store to access and to update the application state. This brings dependencies and coupling which should be mocked out during tests. Unfortunately, that's not easy to do because a component's logic often depends on a logic in the store. If you want to mock it, then your mocks will end up with duplicating the logic of the store in your tests one to one. To keep things DRY, it's easier to test smart component with real store implementation (real actions, mutations and getters). If your actions are calling back-end API (they often do), this is necessary to be mocked. Let's check this out in following scenario.
+Usually smart components use a store to access and to update the application state. This brings dependencies and coupling which should be mocked out during the test. Unfortunately, that's not easy to do because a component's logic often depends on a logic in the store. If you want to mock it, then your mock will end up with duplicated logic.
+
+To keep things DRY, it's easier to test smart component with real store implementation (real actions, mutations and getters). If your actions are calling back-end API (they often do), this should be mocked. Let's check this out in the following example.
 
 The component below is using the store to persist a message. The message is also displayed in the title of the component, so it must be retrieved every time it changes.
 
@@ -1119,7 +1121,7 @@ class MyComponent extends Vue {
 }
 ```
 
-The store is defined:
+The store is defined as follows:
 
 ```js
 import Vue from 'vue';
@@ -1176,7 +1178,7 @@ beforeEach(function () {
 });
 ```
 
-Testing cases `A` and `B` is easy, we just need to check what has been rendered. Testing C can be achieved by checking `expect(this.actions.updateMessage).to.have.been.calledWith('updateMessage', { message: 'newValue' })`. What about the case `D`? We have an option to drop it because we tested that the component is able to read from a store (in `A` and `B`) and fires an action on update (in `C`). This is considered as true unit test approach and it might be enough, on the other hand, tests never test it as a whole (they are covering the scenario but only indirectly). Wouldn't it be better to actually test the real behavior of the component: `When an user types something, it should update the title immediately`? It will give us much higher confidence that our component behaves as intended. Okay, let's modify the `updateMessage` stub and do following:
+Testing cases `A` and `B` is easy, we just need to check what has been rendered. Testing C can be achieved by checking `expect(this.actions.updateMessage).to.have.been.calledWith('updateMessage', { message: 'newValue' })`. What about the case `D`? We have an option to drop it because we tested that the component is able to read from a store (in `A` and `B`) and fires an action on update (in `C`). This is considered as true unit test approach and it might be enough, on the other hand, tests never test it as a whole (they are covering the scenario but only indirectly). Wouldn't it be better to actually test the real behavior of the component: `When an user types something, it should update the title immediately`? It will give us much more confidence that our component behaves as intended. Okay, let's modify the `updateMessage` stub and do the following:
 
 ```js
 beforeEach(function () {
@@ -1188,7 +1190,7 @@ beforeEach(function () {
 });
 ```
 
-Problem solved but we basically copied the logic from the store in our test. This solution doesn't scale well for large applications. Imagine doing this with much more complex component and store. Imagine if two or more smart components need the same part of the store. Are we going to repeat the same set up again and again? Let's find a better way how to reuse existing store and don't repeat the logic. A naive approach would tell us just try to import the store, right?
+Problem solved but we basically copied the logic from the store in our test. This solution doesn't scale well for large applications. Imagine doing this with much more complex component and store. Imagine if two or more smart components need the same part of the store. Are we going to repeat the same set up again and again? Let's find a better way on how to reuse existing store and don't repeat the logic. A naive approach would be to just try to import the store, right?
 
 ```js
 import { mount } from '@vue/test-utils';
@@ -1199,7 +1201,7 @@ beforeEach(function () {
 });
 ```
 
-This causes a problem that the state is shared between all tests. If the first test changes `message` to something, then the second test will have this changes available. That's going against the idea that every test should start from the same position (from scratch), unaffected by the previous test. We need to create a factory which can give us brand new instance every time we need.
+This causes a problem that the state is shared between all tests. If the first test changes `message` to something, then the second test will be affected by the changes made. That's going against the idea that every test should start from the same position (from scratch), unaffected by the previous test. We need to create a factory which can give us brand new instance every time we need.
 
 ```js
 import Vue from 'vue';

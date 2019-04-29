@@ -1055,7 +1055,7 @@ npm run serve --stub
 
 ### Dos
 
-* You can reuse any logic from real implementation in your stub by inheriting the stub from a real one. In this example, you can see the stub not completely overriding existing code, but rather mocking API call based on the username and password. The advantage is that logic inside real implementation is now running too, which might be important for you. Also, mocking axios is better than returning resolved promises because you might have registered an error interceptor (or any other interceptor) which you would like to see running too.
+* You can reuse any logic from a real implementation in your stub by creating the stub based on the real code. In this example, you can see that the real implementation is not completely overrided by the stub, instead, it is mocking API calls based on the username and password. The advantage of this approach, is that the logic inside the real implementation can run alongside the stub, which might be important for you. Also, mocking axios is better than returning resolved promises because you might have registered an error interceptor (or any other interceptor) which you would like to see running too.
 
 ```js
 import axios from 'axios';
@@ -1069,7 +1069,7 @@ export { AUTH_SERVICE_ID };
 @Override(AUTH_SERVICE_ID)
 export default class AuthServiceStub extends AuthService {
   login (username, password) {
-    let axiosMock = new AxiosMockAdapter(axios);
+    const axiosMock = new AxiosMockAdapter(axios);
     if (username === password) {
       axiosMock.onPost('/api/login', { username, password }).replyOnce(200, 'random_token');
     } else {

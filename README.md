@@ -1657,7 +1657,7 @@ This topic has been fully covered by [the official documentation](https://vue-te
 
 ## Testing navigation guards
 
-Unfortunately, there is no easy way how to test navigation guards. If you want to simulate the event triggering by calling `router.push` function, you are going to have a hard time. ~~Better~~ Easier solution is to call the guard manually in `beforeEach()`, but even this solution doesn't have clean approach. See following examples:
+Unfortunately, there is no easy way to test navigation guards. If you want to simulate the event triggering by calling `router.push` function, you are going to have a hard time. A ~~better~~ easier solution is to call the guard manually in `beforeEach()`, but even this solution doesn't have a clean approach. See the following example:
 
 ### beforeRouteEnter
 
@@ -1675,11 +1675,11 @@ class MyView extends Vue {
 ```js
 // my-view.spec.js
 it('should trigger beforeRouteEnter event', function () {
-  let view = mount(MyView);
-  let spy = sinon.spy(view.vm.$options.beforeRouteEnter, '0'); // you cannot just call view.vm.beforeRouteEnter(). The function exists only in $options object.
+  const view = mount(MyView);
+  const spy = sinon.spy(view.vm.$options.beforeRouteEnter, '0'); // you can't just call view.vm.beforeRouteEnter(). The function exists only in $options object.
 
-  let from = {}; // mock 'from' route
-  let to = {}; // mock 'to' route
+  const from = {}; // mock 'from' route
+  const to = {}; // mock 'to' route
   view.vm.$options.beforeRouteEnter[0](to, from, cb => cb(view.vm));
 
   expect(view.vm.entered).to.be.true;
@@ -1687,19 +1687,19 @@ it('should trigger beforeRouteEnter event', function () {
 });
 ```
 
-In case you are wondering how to do the same thing using `router.push`, so you don't have to mock routes and callback function, this is the way:
+In case you are wondering how to do the same thing using `router.push`, in a way that you don't have to mock routes and callback functions, this is the way to go:
 
 ```js
 it('should trigger beforeRouteEnter event', function () {
-  let view = mount(MyView);
-  let spy = sinon.spy(view.vm.$options.beforeRouteEnter, '0'); // beforeRouteEnter is an array of callback functions
+  const view = mount(MyView);
+  const spy = sinon.spy(view.vm.$options.beforeRouteEnter, '0'); // beforeRouteEnter is an array of callback functions
 
-  // at this moment, this.route.currentRoute doesn't exist. We need to push route we want to have in the $route object inside out view
+  // at this moment, this.route.currentRoute doesn't exist. We need to push the route we want to have in the $route object inside our view
   this.router.push({ name: 'my-route' });
 
   // now the route exists, but, because it's not resolved (committed) yet, the route is not aware of the view. we need to assign the mounted view to the instances
   this.router.currentRoute.matched[0].instances.default = view.vm;
-  // now we will finally execute the life cycle of the router, which will go through global event, then it will check if default instance on matched route exist and if so, it will call the beforeRouteEnter event on it.
+  // now we will finally execute the life cycle of the router, which will go through global event, then it will check if default instance on the matched route exist and if so, it will call the beforeRouteEnter event on it.
   await flushPromises();
 
   expect(view.vm.entered).to.be.true;
@@ -1707,7 +1707,7 @@ it('should trigger beforeRouteEnter event', function () {
 });
 ```
 
-This approach requires a knowledge about VUE and router internals and **can stop working** after every minor refactoring done by the VUE team. I do not recommend to use it unless guys from VUE provide some helper function in [@vue/test-utils](https://github.com/vuejs/vue-test-utils) library for setting it up using cleaner way.
+This approach requires VUE and router internals knowledge, keep in mind that it  **can stop working** after every minor refactoring done by the VUE core team. I do not recommend to use it unless guys from VUE provide some helper function in [@vue/test-utils](https://github.com/vuejs/vue-test-utils) library for setting it up using a cleaner approach.
 
 ## Testing provide/inject
 

@@ -1711,7 +1711,7 @@ This approach requires VUE and router internals knowledge, keep in mind that it 
 
 ## Testing provide/inject
 
-_NOTE_: Before you even start developing your components using `provide`/`inject`, please consider if you really need them. It is mentioned in [the official documentation](https://vuejs.org/v2/api/#provide-inject) that this feature is suitable only for certain scenarios. Also consider that both, `provide` and `inject` and not [reactive](https://vuejs.org/v2/guide/reactivity.html#ad), which only introduces limitation to the development that you have to keep in mind. Using "traditional" [one-way data flow](https://vuejs.org/v2/guide/components-props.html#One-Way-Data-Flow) between components may be more appropriate for your use case.
+_NOTE_: Before you even start developing your component using `provide`/`inject`, consider to spend a while thinking if you really need them. The [official documentation](https://vuejs.org/v2/api/#provide-inject) mention that this feature is suitable only for certain scenarios. Also consider that both, `provide` and `inject` and not [reactive](https://vuejs.org/v2/guide/reactivity.html#ad), which only introduces limitation to the development that you have to keep in mind. Using "traditional" [one-way data flow](https://vuejs.org/v2/guide/components-props.html#One-Way-Data-Flow) between components may be more appropriate for your use case.
 
 For the testing purposes, let's have three components which communicate using `provide`/`inject`:
 
@@ -1724,7 +1724,7 @@ For the testing purposes, let's have three components which communicate using `p
 </my-checkbox-list>
 ```
 
-... where `my-checkbox-list` is a wrapper providing an API for `my-checkbox`es to tell the list they are checked or not, and the `my-checkbox-list-status` is a component for displaying nice message to the user how many checkboxes have already been checked, e.g. `"2 out of 3 item(s) have been selected."`
+Where `my-checkbox-list` is a wrapper providing an API for `my-checkbox`es to tell the list if they are checked or not, and the `my-checkbox-list-status` is a component for displaying a message of how many checkboxes have already been checked, e.g. `"2 out of 3 item(s) have been selected"`.
 
 ### Testing component that injects values
 
@@ -1733,15 +1733,15 @@ For a component that only injects values we can use [provide option](https://vue
 ```js
 beforeEach(function () {
   this.mountMyCheckboxListStatus = function (myCheckboxListMock, options) {
-    let provide = { "checkboxList": myCheckboxListMock };
-    let wrapper = mount(MyCheckboxListStatus, { provide, ...options });
+    const provide = { "checkboxList": myCheckboxListMock };
+    const wrapper = mount(MyCheckboxListStatus, { provide, ...options });
     return new MyCheckboxListStatusPageObj(wrapper);
   };
 });
 
 it('should render the message', function () {
-  let myCheckboxListMock = { numberOfItems: 6, numberOfSelectedItems: 3 };
-  let myCheckboxListStatus = this.mountCheckboxListStatus(myCheckboxListMock);
+  const myCheckboxListMock = { numberOfItems: 6, numberOfSelectedItems: 3 };
+  const myCheckboxListStatus = this.mountCheckboxListStatus(myCheckboxListMock);
   expect(myCheckboxListStatus.message).to.equal("3 out of 6 item(s) have been selected");
 });
 ```
@@ -1754,12 +1754,12 @@ For a component that provides values is better to use integration tests and test
 beforeEach(function () {
   this.mountMyCheckboxList = function (template, options) {
     // we are going to mount a string template, thus we need to convert it into something that Vue can understand:
-    let Wrapper = Vue.extend({
+    const Wrapper = Vue.extend({
       ...compileToFunctions(template),
       components: { MyCheckboxList, MyCheckbox, MyCheckboxListStatus }
     });
 
-    let wrapper = mount(Wrapper, { ...options });
+    const wrapper = mount(Wrapper, { ...options });
     return new MyCheckboxListPageObj(wrapper);
   };
 });

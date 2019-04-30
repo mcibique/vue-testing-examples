@@ -1581,7 +1581,7 @@ And everything works fine again.
 
 ## Testing v-model
 
-Let's test a custom component with `v-model` support, e.g. like this one:
+Let's test a custom component with `v-model` support, like this one:
 
 ```html
 <div class="c-checkbox">
@@ -1627,7 +1627,7 @@ We can use this component in any form:
 <my-checkbox v-model="value"></my-checkbox>
 ```
 
-If the component doesn't have `v-model` we can do all test just using `mount(MyCheckbox, { ... })`, but unfortunately, the component supports `v-model` and there is no way how model can be passed to the `mount()`. What we have to do is to create another component which uses the component under the test inside its template. The wrapper can also provide a value which will be passed to the v-model and which will be updated:
+If the component doesn't have `v-model`, we can test it using: `mount(MyCheckbox, { ... })`. Unfortunately, the component supports `v-model` and there is no way to pass in the model through `mount()`. What we have to do is to create another component which uses the component under the test inside its template. The wrapper can provide a value to pass in the `v-model` value, which will be updated as expected:
 
 ```js
 beforeEach(function () {

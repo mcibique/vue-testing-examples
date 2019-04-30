@@ -1449,7 +1449,7 @@ You can see the full implementation (including restoring the mock back to the or
 
 ### Setting up initial state in tests
 
-Let's say we need our store to start with different initial state than is specified in application's code. E.g. a store which holds information about what is the type of current user:
+Let's say we need our store to start with a different state than what is specified in the application's code. E.g. a store which holds the information about what is the current user type:
 
 ```js
 // store.js
@@ -1460,7 +1460,7 @@ export default {
 }
 ```
 
-The problems starts when we want to test a component which uses the flag from store to determine what should be displayed:
+The problems starts when we want to test a component which uses the flag from the store to determine what should be displayed:
 
 ```html
 <template>
@@ -1480,7 +1480,7 @@ class MyComponent extends Vue {
 }
 ```
 
-In test, we need to change the initial state before each test. We have two options how to do that:
+In the test, we need to change the initial state before each test. We have two options how to do that:
 
 #### Using existing mutations to change initial state
 
@@ -1526,11 +1526,11 @@ describe('when user is non-VIP', function () {
 });
 ```
 
-There is no winner in this competition, both approaches does the work, it's up to you which one do you prefer. Few notes to consider:
+There is no winner in this competition, both approaches does the work, it's up to you to chose which one you prefer. Therefore, there are a few notes to consider:
 
-The first approach uses existing functionality, that means if the logic in mutation changes, then you have to update the tests. It also might seem a little less readable or intuitive.
+The first approach uses existing functionality, which means that if the logic in the mutation changes, then you have to update the test. It also might seem a little less readable or intuitive.
 
-The second approach doesn't require mutation to be defined (might be useful when an application doesn't need it, don't write a mutation only for using it in tests). You must be always careful with setting only properties already existing in the store. All properties of the `state` object are [reactive](https://vuejs.org/v2/guide/reactivity.html), that means every time a new value is assigned to them, the components using the property get re-rendered and updated. If you introduce new properties during the test, components will not be aware of them, unless you use `Vue.set()` method. See the next example:
+The second approach doesn't require mutation to be defined (it might be useful when an application doesn't need it, don't write a mutation only for testing purpose). You must be always careful with setting only properties that already exists in the store. All properties of the `state` object are [reactive](https://vuejs.org/v2/guide/reactivity.html), which means that every time a new value is assigned to them, the components using the property get re-rendered and updated. If you introduce new properties during the test, components will not be aware of them, unless you use `Vue.set()`. See the next example:
 
 ```js
 // store.js
@@ -1550,7 +1550,7 @@ describe('when user has profile loaded', function () {
     this.store.state.profile = {
       username: 'john.doe'
     }; // Vue will see that the new value in profile is an object so it will make also the nested property username reactive
-    // changing property username will force the component to update
+    // changing the property username will force the component to update
 
     // the following code introduces new properties on the profile object, Vue cannot detect this, so they will never get converted into reactive prop.
     this.store.state.profile.firstName = 'John'; // please don't
@@ -1566,7 +1566,7 @@ describe('when user has profile loaded', function () {
 // !warning: this is wrong!
 ```
 
-If you try to use `firstName` or `lastName` in the template, you will only get undefined values, because these values were not reactified by the Vue. Vue cannot detect new or deleted properties, see [caveats of reactivity](https://vuejs.org/v2/guide/reactivity.html#Change-Detection-Caveats). However you can use `Vue.set()` to fix the problem:
+If you try to use `firstName` or `lastName` in the template, you will only get undefined values, because these values were not reactified by Vue. Vue can't detect new or deleted properties, see [caveats of reactivity](https://vuejs.org/v2/guide/reactivity.html#Change-Detection-Caveats). However you can use `Vue.set()` to change this behavior:
 
 ```js
 beforeEach(function () {

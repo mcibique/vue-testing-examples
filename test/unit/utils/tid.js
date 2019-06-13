@@ -1,20 +1,9 @@
-import { mount } from '@vue/test-utils';
+import { Wrapper, WrapperArray } from '@vue/test-utils';
 
-let NoopComponent = {
-  name: 'noop',
-  render () {
-    return null;
-  }
-};
-
-let dummyComponent = mount(NoopComponent);
-let VueWrapperPrototype = Object.getPrototypeOf(dummyComponent);
-let WrapperPrototype = Object.getPrototypeOf(VueWrapperPrototype);
-
-WrapperPrototype.tid = function (selector) {
+Wrapper.prototype.tid = function (selector) {
   return this.find(`[tid~="${selector}"]`);
 };
 
-WrapperPrototype.tids = function (selector) {
+Wrapper.prototype.tids = WrapperArray.prototype = function (selector) {
   return this.findAll(`[tid~="${selector}"]`);
 };

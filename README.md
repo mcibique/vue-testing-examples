@@ -1460,7 +1460,7 @@ export default {
 }
 ```
 
-The problems starts when we want to test a component which uses the flag from the store to determine what should be displayed:
+The problems start when we want to test a component which uses the flag from the store to determine what should be displayed:
 
 ```html
 <template>
@@ -1530,7 +1530,7 @@ There is no winner in this competition, both approaches does the work, it's up t
 
 The first approach uses existing functionality, which means that if the logic in the mutation changes, then you have to update the test. It also might seem a little less readable or intuitive.
 
-The second approach doesn't require mutation to be defined (it might be useful when an application doesn't need it, don't write a mutation only for testing purpose). You must be always careful with setting only properties that already exists in the store. All properties of the `state` object are [reactive](https://vuejs.org/v2/guide/reactivity.html), which means that every time a new value is assigned to them, the components using the property get re-rendered and updated. If you introduce new properties during the test, components will not be aware of them, unless you use `Vue.set()`. See the next example:
+The second approach doesn't require mutation to be defined (it might be useful when an application doesn't need it, don't write a mutation only for testing purpose). You must be always careful with setting only properties that already exist in the store. All properties of the `state` object are [reactive](https://vuejs.org/v2/guide/reactivity.html), which means that every time a new value is assigned to them, the components using the property get re-rendered and updated. If you introduce new properties during the test, components will not be aware of them, unless you use `Vue.set()`. See the next example:
 
 ```js
 // store.js
@@ -1711,7 +1711,7 @@ This approach requires VUE and router internals knowledge, keep in mind that it 
 
 ## Testing provide/inject
 
-_NOTE_: Before you even start developing your component using `provide`/`inject`, consider to spend a while thinking if you really need them. The [official documentation](https://vuejs.org/v2/api/#provide-inject) mention that this feature is suitable only for certain scenarios. Also consider that both, `provide` and `inject` and not [reactive](https://vuejs.org/v2/guide/reactivity.html#ad), which only introduces limitation to the development that you have to keep in mind. Using "traditional" [one-way data flow](https://vuejs.org/v2/guide/components-props.html#One-Way-Data-Flow) between components may be more appropriate for your use case.
+_NOTE_: Before you even start developing your component using `provide`/`inject`, consider to spend a while thinking if you really need them. The [official documentation](https://vuejs.org/v2/api/#provide-inject) mention that this feature is suitable only for certain scenarios. Also consider that both, `provide` and `inject`, are not [reactive](https://vuejs.org/v2/guide/reactivity.html#ad), which only introduces limitation to the development that you have to keep in mind. Using "traditional" [one-way data flow](https://vuejs.org/v2/guide/components-props.html#One-Way-Data-Flow) between components may be more appropriate for your use case.
 
 For the testing purposes, let's have three components which communicate using `provide`/`inject`:
 

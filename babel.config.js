@@ -1,6 +1,6 @@
 module.exports = {
   presets: [
-    ['@vue/app', { jsx: false, loose: true }]
+    ['@vue/app', { jsx: false, loose: true, useBuiltIns: 'entry' }]
   ],
   'env': {
     'test': {

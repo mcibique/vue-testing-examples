@@ -262,7 +262,7 @@ In the next step you can make the selector little bit shorter by extracting part
 
 ```js
 function findByTId(tid) {
-  return findByCss(`[tid*='${tid}']`);
+  return findByCss(`[tid~='${tid}']`);
 }
 ```
 

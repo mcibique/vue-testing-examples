@@ -12,9 +12,9 @@ let VueWrapperPrototype = Object.getPrototypeOf(dummyComponent);
 let WrapperPrototype = Object.getPrototypeOf(VueWrapperPrototype);
 
 WrapperPrototype.tid = function (selector) {
-  return this.find(`[tid="${selector}"]`);
+  return this.find(`[tid~="${selector}"]`);
 };
 
 WrapperPrototype.tids = function (selector) {
-  return this.findAll(`[tid="${selector}"]`);
+  return this.findAll(`[tid~="${selector}"]`);
 };

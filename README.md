@@ -17,7 +17,7 @@ Topics already covered:
 * [Assert console.error() has not been called](#assert-consoleerror-has-not-been-called)
 * [Page objects pattern](#page-objects-pattern)
 * [Dependency Injection](#dependency-injection)
-  * [Setting up DI in VUE](#setting-up-di-in-vue)
+  * [Setting up DI in Vue](#setting-up-di-in-vue)
   * [Using decorators](#using-decorators)
     * [@Register decorator](#register-decorator)
     * [@LazyInject decorator](#lazyinject-decorator)
@@ -47,7 +47,7 @@ Topics already covered:
 
 ## Testing pyramid, dumb vs smart components, mount vs shallow
 
-If you are not familiar with testing pyramid, check out the article about it written by [Ham Vocke](https://martinfowler.com/articles/practical-test-pyramid.html) on Martin's Fowler blog. Usually, writing only unit tests for a VUE app is not enough, especially if you have a components with lots of logic and lots of dependencies. It would be better to test it together. You can try to do that in E2E tests, but E2E tests should be running against fully working and fully configured system with DB, all back-end services and without any mocks. That's very hard to achieve locally, and if you want to test all edge cases, E2E tests can take hours to run. Usually, E2E tests run after your changes were merged to master branch and were fully tested by your QA and were integrated by your CI process. It's not too late to spot the bugs here, but it delays delivery of your product because bugs must be fixed first and go through PR, QA and CI again.
+If you are not familiar with the testing pyramid, check out this article about it written by [Ham Vocke](https://martinfowler.com/articles/practical-test-pyramid.html) on Martin Fowler's blog. Usually, writing only unit tests for a Vue app is not enough, especially if you have a component with lots of logic and lots of dependencies. It would be better to test it together. You can try to do that in E2E tests, but E2E tests should be running against a fully working and fully configured system with DB, all backend services and without any mocks. That's very hard to achieve locally, and if you want to test all edge cases, E2E tests can take hours to run. Usually, E2E tests are ran after your changes are merged to the master branch, by your CI process, and have been fully tested by your QA. It's not too late to spot the bugs here, but it delays delivery of your product because bugs must be fixed first and go through PR, QA and CI again.
 
 Integration tests are an alternative for E2E. These tests can integrate a couple of components together and allows you to mock API calls, so you can easily simulate all edge cases which you cannot achieve in E2E tests. Integration tests are also faster than E2E because they don't fully load the app and don't rely on setting up a brower and the network.
 
@@ -75,7 +75,7 @@ A functional component is considered a dumb component and should follow the same
 
 ### Services
 
-Services should be autonomous and should not rely on VUE. Unit tests are just enough. If service is calling back-end API, mock it and test all possible return codes (same as smart components). If service depends on other services, mock them too.
+Services should be autonomous and should not rely on Vue. Unit tests are just enough. If service is calling backend API, mock it and test all possible return codes (same as smart components). If service depends on other services, mock them too.
 
 ### Filters
 
@@ -83,7 +83,7 @@ A filter should be a simple pure function without any side effects and should no
 
 ### Directives
 
-A directive usually requires another HTML element and an user interaction to be triggered. Integration tests and `mount` are better for these scenarios.
+A directive usually requires another HTML element and a user interaction to be triggered. Integration tests and `mount` are better for these scenarios.
 
 ### Store
 
@@ -144,8 +144,8 @@ it('should call external API with given params', function () {
 
 ### Dos
 
-* When defining mock, always try to set expected params or body (be as much specific as possible). It prevents your tests going green because of the functionality under test was accidentally called from other parts of your code.
-* Always specify the number of calls you expect to happen. Use `replyOnce` when you know the external call should happen only once (99% test cases). If your code has a bug and calls API twice, you will spot the problem because the 2nd call will fail with `Error: Request failed with status code 404`.
+* When defining a mock, always try to set expected params or body (be as specific as possible). This prevents your tests from going green because the functionality tested was accidentally called from other parts of your code.
+* Always specify the number of calls you expect to happen. Use `replyOnce` when you know the external call should happen only once (99% of test cases). If your code has a bug and calls an API twice, you will spot the problem because the 2nd call will fail with `Error: Request failed with status code 404`.
 * Always restore axios back to the state before your test was running. Use `axios.restore()` function to do so.
 * Verify after each test that all registered mocks have been called using `axios.verifyNoOutstandingExpectation()`. It can catch issues when your test didn't executed part of the code you expected, but still went green. You can implement your own expectation if you need to, this is the current implementation:
 
@@ -167,7 +167,7 @@ AxiosMockAdapter.prototype.verifyNoOutstandingExpectation = function () {
 
 ### Don'ts
 
-* Do not mock original axios functions because you loose huge portion of functionality done by axios (e.g. custom interceptors).
+* Do not mock original axios functions because you lose huge portions of functionality done by axios (e.g. custom interceptors).
 
 ```js
 import axios from 'axios';
@@ -203,7 +203,7 @@ afterEach(function () {
 
 ## Page objects pattern
 
-If you are new to the page objects, please follow [great overview](https://martinfowler.com/bliki/PageObject.html) written by [Martin Fowler](https://martinfowler.com/). The basic idea is to keep things [DRY](https://code.tutsplus.com/tutorials/3-key-software-principles-you-must-understand--net-25161) and reusable, but there are more things to mention: refactoring and readability. Let's have a page object like this:
+If you are new to the page objects, please follow this [great overview](https://martinfowler.com/bliki/PageObject.html) written by [Martin Fowler](https://martinfowler.com/). The basic idea is to keep things [DRY](https://code.tutsplus.com/tutorials/3-key-software-principles-you-must-understand--net-25161) and reusable, but there are more things to mention: refactoring and readability. Let's have a page object like this:
 
 ```js
 class LoginPage {
@@ -229,12 +229,12 @@ class LoginPage {
 
 The example above has the following issues:
 
-* Every time an ID or CSS class change, you have to update the page object.
-* If you want to remove ID from the username, you have to check whether it is used in tests or not.
-* If you want to remove a CSS class, you have to check whether it is used in tests or not. If it's used in the test, you have to keep class assigned to the element but the class will no longer exist in CSS file. This causes many confusions.
-* Every time a new object is added to the form, it breaks the XPath for the submit button. Because of it, using XPath instead of CSS selector is always considered a bad idea.
+* Every time an ID or CSS class changes, you have to update the page object.
+* If you want to remove the ID from the username, you have to check whether it is used in tests or not.
+* If you want to remove a CSS class, you have to check whether it is used in tests or not. If it's used in the test, you have to keep the class assigned to the element but the class will no longer exist in your CSS file. This can cause lots of confusion.
+* Every time a new object is added to the form, it breaks the XPath for the submit button. Because of this, using XPath instead of a CSS selector is always considered a bad idea.
 
-None of these is giving you the confidence to do minor/major refactoring of your CSS or HTML because you might break the tests. To remove this coupling, you can give a unique identifier for your element through `data-` attributes introduces in [HTML5](https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes) or you can use your own attribute. You can choose a name of the attribute such as `data-test-id`, `data-qa` or simply `tid` if you prefer short names. The page object will look like then:
+None of these are giving you the confidence to do minor/major refactoring of your CSS or HTML because you might break the tests. To remove this coupling, you can give a unique identifier for your element through `data-` attributes (introduced in [HTML5](https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes)) or you can use your own attribute. You can choose a name of the attribute such as `data-test-id`, `data-qa` or simply `tid` if you prefer short names. The page object will look like then:
 
 ```js
 class LoginPage {
@@ -258,7 +258,7 @@ class LoginPage {
 }
 ```
 
-In the next step you can make the selector little bit shorter by extracting part of the selector to another function:
+In the next step you can make the selector a little bit shorter by extracting part of the selector to another function:
 
 ```js
 function findByTId(tid) {
@@ -266,7 +266,7 @@ function findByTId(tid) {
 }
 ```
 
-Adding `*` into the selector allows us to assign more than one identifier to a single element and a better versatility in your page objects, e.g.:
+Adding `~` into the selector allows us to assign more than one identifier to a single element; giving better versatility in your page objects, e.g.:
 
 ```html
 <nav>
@@ -308,7 +308,7 @@ class Nav {
 
 Mocking dependencies and imports in tests might be really tedious. Using [inject-loader](https://github.com/plasticine/inject-loader) or [proxyquire](https://github.com/thlorenz/proxyquire) can help a lot but it requires lots of ugly code. Another option is to involve dependency injection, such as [inversify](https://github.com/inversify/InversifyJS). They are primarily focused on Typescript but they support [vanilla JS](https://github.com/inversify/inversify-vanillajs-helpers) too (without any trade offs). In scenarios where you don't have control over instantiating components and services, there is another very handy [toolbox](https://github.com/inversify/inversify-inject-decorators) which gives you a set of decorators usable in Vue components.
 
-### Setting up DI in VUE
+### Setting up DI in Vue
 
 We need to create a container instance for holding all registered injections. We need only one instance per application:
 
@@ -334,7 +334,7 @@ export default class AuthService {
 }
 ```
 
-... register it in `di.js`:
+...register it in `di.js`:
 
 ```js
 import { Container } from 'inversify';
@@ -344,7 +344,7 @@ container.bind('authService').to(AuthService);
 export default container;
 ```
 
-... and then use it in VUE component:
+... and then use it in a Vue component:
 
 ```js
 import container from './di';
@@ -361,7 +361,7 @@ class LoginView extends Vue {
 
 There are a couple of issues with this approach:
 
-1. If we register all our services in `di.js`, then we nullified the code splitting because everything is required during the application bootstrap. To solve this issue, let's register a service into the container only when it is required for the first time:
+1. If we register all our services in `di.js`, then we nullified the code splitting because everything is required during the application bootstrap. To solve this issue, let's register a service in the container only when it is required for the first time:
 
 ```js
 import container from './di';
@@ -375,7 +375,7 @@ export default class AuthService {
 container.bind('authService').to(AuthService);
 ```
 
-2. We have lots of [magic strings](http://deviq.com/magic-strings/) everywhere (e.g. what we would do if `authService` changes the name? How we prevent naming collisions?). Well, ES6 introduced [symbols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol) that we can use. Don't forget to export the symbol so it can be used later:
+2. We have lots of [magic strings](http://deviq.com/magic-strings/) everywhere (e.g. what we would do if `authService` changes the name? How do we prevent naming collisions?). Well, ES6 introduced [symbols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol) that we can use. Don't forget to export the symbol so it can be used later:
 
 ```js
 import container from './di';
@@ -391,7 +391,7 @@ export default class AuthService {
 container.bind(AUTH_SERVICE_ID).to(AuthService);
 ```
 
-... and use it in VUE component:
+... and use it in your Vue component:
 
 ```js
 import container from './di';
@@ -407,7 +407,7 @@ class LoginView extends Vue {
 }
 ```
 
-There are many other ways how to register service, singletons, constructors, tags, bindings, etc. Check out the inversify [docs](https://github.com/inversify/InversifyJS/blob/master/wiki/symbols_as_id.md) for more.
+There are many other ways to register a service (singletons, constructors, tags, bindings, etc). Check out the [inversify docs](https://github.com/inversify/InversifyJS/blob/master/wiki/symbols_as_id.md) for more.
 
 ### Using decorators
 
@@ -415,7 +415,7 @@ Decorators can help us to eliminate lots of code repetition and make our code cl
 
 #### @Register decorator
 
-The @Register() decorator is just a syntactic sugar for registering classes to the container. In Typescript, you would have `@injectable` and `@inject` decorators available, but this project is not using TS, it's plain JS. The InversifyJS maintainers have provided another set of decorators/helpers called [inversify-vanillajs-helpers](https://github.com/inversify/inversify-vanillajs-helpers), for using inversify without TS. They just need a unique identifier for each registered class, because they cannot tell which parameter in constructor belongs to which registered class.
+The @Register() decorator is syntactic sugar for registering classes to the container. In Typescript, you would have `@injectable` and `@inject` decorators available, but this project is not using TS, it's plain JS. The InversifyJS maintainers have provided another set of decorators/helpers called [inversify-vanillajs-helpers](https://github.com/inversify/inversify-vanillajs-helpers), for using inversify without TS. They just need a unique identifier for each registered class, because they cannot tell which parameter in constructor belongs to which registered class.
 
 Let's have classes defined as:
 
@@ -436,7 +436,7 @@ class A {
 }
 ```
 
-You can register all classes to the container and give each class unique identifier.
+You can register all classes to the container and give each class a unique identifier.
 
 ```js
 container.bind("c").to(C);
@@ -456,14 +456,14 @@ inversify.decorate(inversify.inject("c"), C, 1);
 container.bind("a").to(A);
 ```
 
-In TS, this is done by `@injectable` and `@inject` decorators automatically. Doing this for every class in your project would be annoying, so let's use rather a vanillajs helper:
+In TS, this is done by `@injectable` and `@inject` decorators automatically. Doing this for every class in your project would be annoying, so let's use a vanillajs helper:
 
 ```js
 const register = helpers.register(container);
 register("a", ["b", "c"])(A);
 ```
 
-^^ this helper called `register` is now coupled with the container and does exactly the same thing as the previous example, and the helper can also be used as a decorator:
+^^ the `register` helper is now coupled with the container and does exactly the same thing as the previous example, and the helper can also be used as a decorator:
 
 ```js
 @register("a", ["b", "c"])
@@ -472,7 +472,7 @@ class A {
 }
 ```
 
-... is equivalent to:
+...is equivalent to:
 
 ```js
 register("a", ["b", "c"])(
@@ -489,10 +489,10 @@ import { helpers } from 'inversify-vanillajs-helpers';
 const container = new Container();
 const register = helpers.register(container);
 
-export { register as Register } // we are exporting decorator with capital R because other decorators we are already using (e.g. for Vuex) also have a capital letter
+export { register as Register }; // we are exporting a decorator with a capital R because other decorators we are already using (e.g. for Vuex) also have a capital letter
 ```
 
-... so they can be accessed anywhere in the code:
+...so they can be accessed anywhere in the code:
 
 ```js
 import { Register } from './di';
@@ -515,11 +515,11 @@ export default class AuthService {
 ```
 
 DI will ensure that the `credentialsService` will be instantiated first, using `CREDENTIALS_SERVICE_ID` to locate the constructor.
-Check out documentation for [inversify-vanillajs-helpers](https://github.com/inversify/inversify-vanillajs-helpers#usage) to see all possibilities
+Check out documentation for [inversify-vanillajs-helpers](https://github.com/inversify/inversify-vanillajs-helpers#usage) to see all possibilities.
 
 #### @LazyInject decorator
 
-The LazyInject decorator can be very useful for injecting services into the VUE components, as we don't have control over the component instantiation we need to inject services into properties. Let's import the decorator from [inversify-inject-decorators](https://github.com/inversify/inversify-inject-decorators) and make it available in `di.js` first:
+The LazyInject decorator can be very useful for injecting services into Vue components, as we don't have control over the component instantiation we need to inject services into properties. Let's import the decorator from [inversify-inject-decorators](https://github.com/inversify/inversify-inject-decorators) and make it available in `di.js` first:
 
 ```js
 import getDecorators from 'inversify-inject-decorators';
@@ -527,10 +527,10 @@ import getDecorators from 'inversify-inject-decorators';
 const container = new Container();
 const { lazyInject } = getDecorators(container);
 
-export { lazyInject as LazyInject }
+export { lazyInject as LazyInject };
 ```
 
-`di.js` creates a new decorator LazyInject which is tied with the container where everything is registered. Now we can adjust the code in the VUE component:
+`di.js` creates a new decorator LazyInject which is tied with the container where everything is registered. Now we can adjust the code in the Vue component:
 
 ```js
 import { LazyInject } from './di';
@@ -563,7 +563,7 @@ class RealEmailService {
 
 class FakeEmailService {
   sendEmail(from, to, body) {
-    console.log(`Sending an email from ${from} to ${to} with body ${body} skipped.`)
+    console.log(`Sending an email from ${from} to ${to} with body ${body} skipped.`);
     return true; // always return true
   }
 }
@@ -630,7 +630,7 @@ Replacing registered classes allows you to control dependencies of the service u
 
 #### Mocking service dependencies
 
-Let's have a service which depends on other services. Before we even start writing tests, make sure that the dependency is really needed. Huge dependency trees are always hard to test and hard to maintain because of the complexity. You can try to decouple the services and separate their logic. If it's not possible, then you should always mock other services out. Consider the following services:
+Let's have a service which depends on other services. Before we even start writing tests, ensure the dependency is really needed. Huge dependency trees are always hard to test and hard to maintain because of the complexity. You can try to decouple the services and separate their logic. If it's not possible, then you should always mock other services out. Consider the following services:
 
 ```js
 class ServiceA {
@@ -735,7 +735,7 @@ class ServiceE {
 }
 ```
 
-... and then in the spec file you can just type:
+...and then in the spec file you can just type:
 
 ```js
 import container from './di';
@@ -747,7 +747,7 @@ describe('Service A', function () {
 });
 ```
 
-It's much cleaner now, but wait, the mocking ability is now gone. How `serviceC` can be mocked during execution of these tests? The answer to that is simple, the service registration in the DI container can be replaced with our own mock.
+It's much cleaner now, but wait, the mocking ability is now gone. How can `serviceC` be mocked during execution of these tests? The answer to that is simple, the service registration in the DI container can be replaced with our own mock.
 
 ```js
 import container from './di';
@@ -792,7 +792,7 @@ describe('Service A', function () {
 });
 ```
 
-You can move this calls to the global scope of the test to avoid repetition in your code.
+You can move these calls to the global scope of the test to avoid repetition in your code.
 
 ```js
 // globals.js
@@ -807,7 +807,7 @@ afterEach(function () {
 });
 ```
 
-... and then use this file when running mocha
+...and then use this file when running mocha
 
 ```json
 // package.json
@@ -816,11 +816,11 @@ afterEach(function () {
 }
 ```
 
-If you are using `--watch` mode, files included with the flag `--include` are not hot reloaded after changing it's content, to overcome this problem, the solution is to import the file at the top of your spec file.
+If you are using `--watch` mode, files included with the flag `--include` are not hot reloaded after changing its content, to overcome this problem, the solution is to import the file at the top of your spec file.
 
 #### Mocking global objects
 
-Testing a functionality which requires global objects (`window.location` or `setTimeout`) is always a challenge. `window.location` is a property that cannot be overridden but many tests require this property to be mocked. If you have a component which sets `window.location.href = 'some/new/url';`, then this code must be avoided in the test, otherwise, it might break your current test execution (especially if you are running tests in the browser, e.g. with [karma-runner](https://www.npmjs.com/package/karma)). Once again, the Dependency Injection can actually sort out this problem because we can inject the global object into your component and then we can pass custom object, without any restrictions, into a component in your test.
+Testing a functionality which requires global objects (`window.location` or `setTimeout`) is always a challenge. `window.location` is a property that cannot be overridden but many tests require this property to be mocked. If you have a component which sets `window.location.href = 'some/new/url';`, then this code must be avoided in the test, otherwise, it might break your current test execution (especially if you are running tests in the browser, e.g. with [karma-runner](https://www.npmjs.com/package/karma)). Once again, the Dependency Injection can actually sort out this problem because we can inject the global object into your component and then we can pass a custom object, without any restrictions, into a component in your test.
 
 ```js
 // di.js
@@ -840,7 +840,7 @@ export default class MyComponent extends Vue {
 }
 ```
 
-... and your test:
+...and your test:
 
 ```js
 // my-component.spec.js
@@ -859,7 +859,7 @@ afterEach(function () {
 });
 
 it('should navigate to new url', function () {
-  const myComponent = mount(MyComponent); // LazyInject in the component will inject windowMock instead of real window object
+  const myComponent = mount(MyComponent); // LazyInject in the component will inject windowMock instead of the real window object
   myComponent.onClick(); // this call now operates with windowMock, so no real navigation happens in the browser
 
   expect(this.windowMock.location.href).to.equal('some/new/url'); // assert correct URL has been set
@@ -868,7 +868,7 @@ it('should navigate to new url', function () {
 
 ## Time travelling and testing setTimeout
 
-There are several ways on how to test `setTimeout` functions in your code. For all of them, we are going to use the LoginView component which displays some helpful links after 5s. Please don't judge the UX, it's for demonstration purposes:
+There are several ways to test `setTimeout` functions in your code. For all of them, we are going to use the LoginView component which displays some helpful links after 5 seconds. Please don't judge the UX, it's for demonstration purposes:
 
 ```js
 class LoginView extends Vue {
@@ -926,7 +926,7 @@ it('should display help links only after 5s', function () {
 });
 ```
 
-This time the callback is executed and our flag is set to true, but we created another problem. The callback is executed synchronously instead. That changes the order of execution which means we are not testing how code runs in production. And we still cannot test a state of our component after 2s and we are still unsure about timeout cancellation. Let's involve a library that was built-in for this and has a better control over `setTimeout` and it's execution: [lolex](https://github.com/sinonjs/lolex). Lolex has an API which can mock `setTimeout` and allow us to jump in time by 100ms, by 1s, by 1 day while our test is executing (that means the test execution is not paused for 2s).
+This time the callback is executed and our flag is set to true, but we created another problem. The callback is executed synchronously instead. That changes the order of execution which means we are not testing how code runs in production. And we still cannot test a state of our component after 2s and we are still unsure about timeout cancellation. Let's involve a library that was built-in for this and has a better control over `setTimeout` and its execution: [lolex](https://github.com/sinonjs/lolex). Lolex has an API which can mock `setTimeout` and allow us to jump in time by 100ms, by 1s, by 1 day while our test is executing (that means the test execution is not paused for 2s).
 
 ```js
 import { expect } from 'chai';
@@ -987,9 +987,9 @@ afterEach(function () {
 
 ## Using stub services in dev mode
 
-The local development usually requires a working back-end (API) running on the developer machine to populate data in the front-end. One problem to mention is that the API might be under development, leading to an unstable version, with bugs (we all produce bugs) and breaking changes in the data schema. Front-end developers often use a technique of stubbing API and work with fake implementation to overcome this situation. Just create a simple express server, develop your application against it and once the back-end API is ready, just unplug the stubs. Stubs also help to simulate scenarios which are really hard to achieve when using a real back-end.
+Local development usually requires a working backend (API) running on the developer machine to populate data in the frontend. One problem to mention is that the API might be under development, leading to an unstable version, with bugs (we all produce bugs) and breaking changes in the data schema. Frontend developers often use a technique of stubbing the API and working with a fake implementation to overcome this situation. Just create a simple Express server, develop your application against it and once the backend API is ready, just unplug the stubs. Stubs also help to simulate scenarios which are really hard to achieve when using a real backend.
 
-Instead of building your own express server, webpack offers another solution to create stubs for your services. As an example, let's build an `AuthService` which communicates with a real back-end:
+Instead of building your own Express server, Webpack offers another solution to create stubs for your services. As an example, let's build an `AuthService` which communicates with a real backend:
 
 ```js
 import axios from 'axios';
@@ -1009,7 +1009,7 @@ export default class AuthService {
 }
 ```
 
-And let's pretend that the back-end is not ready yet. We can create a twin service with fake implementation:
+And let's pretend that the backend is not ready yet. We can create a twin service with fake implementation:
 
 ```js
 export default class AuthServiceStub {
@@ -1023,7 +1023,7 @@ export default class AuthServiceStub {
 }
 ```
 
-Now we need to solve a problem: how and when to switch between these two services. How can we tell the app which one to use? Webpack has a nice feature called [resolve.extensions](https://webpack.js.org/configuration/resolve/#resolve-extensions) which is used as a decision point to determine extension of the file. In vue app, the value is set to `[".js", ".vue", ".json"]`. If you add `import AuthService from './auth-service'`, then webpack tries to find a file `./auth-service.js`, then `./auth-service.vue` and then `./auth-service.json`, the first match wins. So if we move our AuthServiceStub to another file `./auth-service.stub.js` and then tell the webpack to resolve extensions in order `[".stub.js", ".js", ".vue", ".json"]`, it will first try to import our stub service and only if a stub is not present, it will import the real implementation.
+Now we need to solve a problem: how and when to switch between these two services. How can we tell the app which one to use? Webpack has a nice feature called [resolve.extensions](https://Webpack.js.org/configuration/resolve/#resolve-extensions) which is used as a decision point to determine the extension of the file to resolve. In a Vue app, the value is set to `[".js", ".vue", ".json"]`. If you add `import AuthService from './auth-service'`, then Webpack tries to find a file `./auth-service.js`, then `./auth-service.vue` and then `./auth-service.json`, the first match wins. So if we move our AuthServiceStub to another file `./auth-service.stub.js` and then tell the Webpack to resolve extensions in order `[".stub.js", ".js", ".vue", ".json"]`, it will first try to import our stub service and only if a stub is not present, it will import the real implementation.
 
 This logic can be controlled via [configuration](https://www.npmjs.com/package/webpack-chain), in `vue.config.js`.
 
@@ -1039,7 +1039,7 @@ module.exports = {
 };
 ```
 
-`npm_config_*` is a feature of `npm run-script`. If you call any npm script with `--stub` flag, `process.env.npm_config_stub` will be set to true. In our vue app, there is a command for serving the app in `package.json`:
+`npm_config_*` is a feature of `npm run-script`. If you call any npm script with `--stub` flag, `process.env.npm_config_stub` will be set to true. In our Vue app, there is a command for serving the app in `package.json`:
 
 ```bash
 npm run serve
@@ -1055,7 +1055,7 @@ npm run serve --stub
 
 ### Dos
 
-* You can reuse any logic from a real implementation in your stub by creating the stub based on the real code. In this example, you can see that the real implementation is not completely overrided by the stub, instead, it is mocking API calls based on the username and password. The advantage of this approach, is that the logic inside the real implementation can run alongside the stub, which might be important for you. Also, mocking axios is better than returning resolved promises because you might have registered an error interceptor (or any other interceptor) which you would like to see running too.
+* You can reuse any logic from a real implementation in your stub by creating the stub based on the real code. In this example, you can see that the real implementation is not completely overridden by the stub, instead, it is mocking API calls based on the username and password. The advantage of this approach, is that the logic inside the real implementation can run alongside the stub, which might be important for you. Also, mocking axios is better than returning resolved promises because you might have registered an error interceptor (or any other interceptor) which you would like to see running too.
 
 ```js
 import axios from 'axios';
@@ -1089,9 +1089,9 @@ export default class AuthServiceStub extends AuthService {
 
 ### Mocking store for a smart component
 
-Usually smart components use a store to access and to update the application state. This brings dependencies and coupling which should be mocked out during the test. Unfortunately, that's not easy to do because a component's logic often depends on a logic in the store. If you want to mock it, then your mock will end up with duplicated logic.
+Usually smart components use a store to access and to update the application state. This brings dependencies and coupling which should be mocked out during the test. Unfortunately, that's not easy to do because a component's logic often depends on the logic in the store. If you want to mock it, then your mock will end up with duplicated logic.
 
-To keep things DRY, it's easier to test smart component with real store implementation (real actions, mutations and getters). If your actions are calling back-end API (they often do), this should be mocked. Let's check this out in the following example.
+To keep things DRY, it's easier to test smart component with a real implementation of the store (real actions, mutations and getters). If your actions are calling backend API (they often do), this should be mocked. Let's check this out in the following example.
 
 The component below is using the store to persist a message. The message is also displayed in the title of the component, so it must be retrieved every time it changes.
 
@@ -1159,7 +1159,7 @@ describe('MyComponent', function () {
 });
 ```
 
-Let's give a shot to the mocked store:
+Let's give the mocked store a shot:
 
 ```js
 import { mount } from '@vue/test-utils';
@@ -1178,7 +1178,7 @@ beforeEach(function () {
 });
 ```
 
-Testing cases `A` and `B` is easy, we just need to check what has been rendered. Testing C can be achieved by checking `expect(this.actions.updateMessage).to.have.been.calledWith('updateMessage', { message: 'newValue' })`. What about the case `D`? We have an option to drop it because we tested that the component is able to read from a store (in `A` and `B`) and fires an action on update (in `C`). This is considered as true unit test approach and it might be enough, on the other hand, tests never test it as a whole (they are covering the scenario but only indirectly). Wouldn't it be better to actually test the real behavior of the component: `When an user types something, it should update the title immediately`? It will give us much more confidence that our component behaves as intended. Okay, let's modify the `updateMessage` stub and do the following:
+Testing cases `A` and `B` is easy, we just need to check what has been rendered. Testing C can be achieved by checking `expect(this.actions.updateMessage).to.have.been.calledWith('updateMessage', { message: 'newValue' })`. What about the case `D`? We have an option to drop it because we tested that the component is able to read from a store (in `A` and `B`) and fires an action on update (in `C`). This is considered a true unit test approach and it might be enough, on the other hand, tests never test it as a whole (they are covering the scenario but only indirectly). Wouldn't it be better to actually test the real behavior of the component: `When a user types something, it should update the title immediately`? It will give us much more confidence that our component behaves as intended. Okay, let's modify the `updateMessage` stub and do the following:
 
 ```js
 beforeEach(function () {
@@ -1190,7 +1190,7 @@ beforeEach(function () {
 });
 ```
 
-Problem solved but we basically copied the logic from the store in our test. This solution doesn't scale well for large applications. Imagine doing this with much more complex component and store. Imagine if two or more smart components need the same part of the store. Are we going to repeat the same set up again and again? Let's find a better way on how to reuse existing store and don't repeat the logic. A naive approach would be to just try to import the store, right?
+Problem solved but we basically copied the logic from the store in our test. This solution doesn't scale well for large applications. Imagine doing this with much more complex components and store. Imagine if two or more smart components need the same part of the store. Are we going to repeat the same set up again and again? Let's find a better way on how to reuse the existing store without repeating the logic. A naive approach would be to just try to import the store, right?
 
 ```js
 import { mount } from '@vue/test-utils';
@@ -1201,7 +1201,7 @@ beforeEach(function () {
 });
 ```
 
-This causes a problem that the state is shared between all tests. If the first test changes `message` to something, then the second test will be affected by the changes made. That's going against the idea that every test should start from the same position (from scratch), unaffected by the previous test. We need to create a factory which can give us brand new instance every time we need.
+This causes a problem that the state is shared between all tests. If the first test changes `message` to something, then the second test will be affected by the changes made. That's going against the idea that every test should start from the same position (from scratch), unaffected by the previous test. We need to create a factory which can give us a brand new instance every time we need.
 
 ```js
 import Vue from 'vue';
@@ -1227,7 +1227,7 @@ beforeEach(function () {
 });
 ```
 
-We can even tweak the factory and pass the Vue as a parameter, so we can use [localVue](https://vue-test-utils.vuejs.org/en/guides/common-tips.html#applying-global-plugins-and-mixins) in our tests and real Vue in prod build.
+We can even tweak the factory and pass Vue as a parameter. We can use [localVue](https://vue-test-utils.vuejs.org/en/guides/common-tips.html#applying-global-plugins-and-mixins) in our tests and the real Vue in prod build.
 
 ```js
 import Vue from 'vue';
@@ -1263,7 +1263,7 @@ export function createModule() {
     state: {/* state props */ },
     actions: { /* all actions */ },
     mutations: { /* all mutations */ }
-  }
+  };
 }
 ```
 
@@ -1457,7 +1457,7 @@ export default {
   state: {
     isVip: false
   }
-}
+};
 ```
 
 The problems start when we want to test a component which uses the flag from the store to determine what should be displayed:
@@ -1526,11 +1526,11 @@ describe('when user is non-VIP', function () {
 });
 ```
 
-There is no winner in this competition, both approaches does the work, it's up to you to chose which one you prefer. Therefore, there are a few notes to consider:
+There is no winner in this competition, both approaches work, it's up to you to chose which one you prefer. Therefore, there are a few notes to consider:
 
 The first approach uses existing functionality, which means that if the logic in the mutation changes, then you have to update the test. It also might seem a little less readable or intuitive.
 
-The second approach doesn't require mutation to be defined (it might be useful when an application doesn't need it, don't write a mutation only for testing purpose). You must be always careful with setting only properties that already exist in the store. All properties of the `state` object are [reactive](https://vuejs.org/v2/guide/reactivity.html), which means that every time a new value is assigned to them, the components using the property get re-rendered and updated. If you introduce new properties during the test, components will not be aware of them, unless you use `Vue.set()`. See the next example:
+The second approach doesn't require mutation to be defined (it might be useful when an application doesn't need it, don't write a mutation only for testing purposes). You must be always careful with setting only properties that already exist in the store. All properties of the `state` object are [reactive](https://vuejs.org/v2/guide/reactivity.html), which means that every time a new value is assigned to them, the components using the property get re-rendered and updated. If you introduce new properties during the test, components will not be aware of them, unless you use `Vue.set()`. See the next example:
 
 ```js
 // store.js
@@ -1556,7 +1556,7 @@ describe('when user has profile loaded', function () {
     this.store.state.profile.firstName = 'John'; // please don't
     this.store.state.profile.lastName = 'Doe'; // same problem here
 
-    this.myComponent = mount(MyComponent, { store: this.store })
+    this.myComponent = mount(MyComponent, { store: this.store });
   });
 
   it('should display full name and username in the welcome message', function () {
@@ -1566,7 +1566,7 @@ describe('when user has profile loaded', function () {
 // !warning: this is wrong!
 ```
 
-If you try to use `firstName` or `lastName` in the template, you will only get undefined values, because these values were not reactified by Vue. Vue can't detect new or deleted properties, see [caveats of reactivity](https://vuejs.org/v2/guide/reactivity.html#Change-Detection-Caveats). However you can use `Vue.set()` to change this behavior:
+If you try to use `firstName` or `lastName` in the template, you will only get undefined values, because these values were not made reactive by Vue. Vue can't detect new or deleted properties, see [caveats of reactivity](https://vuejs.org/v2/guide/reactivity.html#Change-Detection-Caveats). However you can use `Vue.set()` to change this behavior:
 
 ```js
 beforeEach(function () {
@@ -1636,7 +1636,7 @@ beforeEach(function () {
     data () {
       return { value: false };
     },
-    template: `<my-checkbox v-model="value"></my-checkbox>` // if you don't have VUE with compiler, use compileToFunctions helper
+    template: `<my-checkbox v-model="value"></my-checkbox>` // if you don't have Vue with compiler, use compileToFunctions helper
   });
 
   this.wrapper = mount(Wrapper);
@@ -1707,11 +1707,11 @@ it('should trigger beforeRouteEnter event', function () {
 });
 ```
 
-This approach requires VUE and router internals knowledge, keep in mind that it  **can stop working** after every minor refactoring done by the VUE core team. I do not recommend to use it unless guys from VUE provide some helper function in [@vue/test-utils](https://github.com/vuejs/vue-test-utils) library for setting it up using a cleaner approach.
+This approach requires Vue and router internals knowledge, keep in mind that it **can stop working** after every minor refactoring done by the Vue core team. I do not recommend to use it unless guys from Vue provide some helper function in [@vue/test-utils](https://github.com/vuejs/vue-test-utils) library for setting it up using a cleaner approach.
 
 ## Testing provide/inject
 
-_NOTE_: Before you even start developing your component using `provide`/`inject`, consider to spend a while thinking if you really need them. The [official documentation](https://vuejs.org/v2/api/#provide-inject) mention that this feature is suitable only for certain scenarios. Also consider that both, `provide` and `inject`, are not [reactive](https://vuejs.org/v2/guide/reactivity.html#ad), which only introduces limitation to the development that you have to keep in mind. Using "traditional" [one-way data flow](https://vuejs.org/v2/guide/components-props.html#One-Way-Data-Flow) between components may be more appropriate for your use case.
+_NOTE_: Before you even start developing your component using `provide`/`inject`, consider spending a while thinking if you really need them. The [official documentation](https://vuejs.org/v2/api/#provide-inject) mentions that this feature is suitable only for certain scenarios. Also consider that both, `provide` and `inject`, are not [reactive](https://vuejs.org/v2/guide/reactivity.html#ad), which only introduces limitation to the development that you have to keep in mind. Using "traditional" [one-way data flow](https://vuejs.org/v2/guide/components-props.html#One-Way-Data-Flow) between components may be more appropriate for your use case.
 
 For the testing purposes, let's have three components which communicate using `provide`/`inject`:
 
@@ -1728,7 +1728,7 @@ Where `my-checkbox-list` is a wrapper providing an API for `my-checkbox`es to te
 
 ### Testing component that injects values
 
-For a component that only injects values we can use [provide option](https://vue-test-utils.vuejs.org/api/options.html#provide) for `mount` function:
+For a component that only injects values we can use the [provide option](https://vue-test-utils.vuejs.org/api/options.html#provide) for the `mount` function:
 
 ```js
 beforeEach(function () {
@@ -1748,7 +1748,7 @@ it('should render the message', function () {
 
 ### Testing component that provides values
 
-For a component that provides values is better to use integration tests and test all of their interactions together.
+For a component that provides values it is better to use integration tests and test all of their interactions together.
 
 ```js
 beforeEach(function () {

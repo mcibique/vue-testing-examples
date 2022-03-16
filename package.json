@@ -22,7 +22,7 @@
     "inversify": "5.0.1",
     "inversify-inject-decorators": "3.1.0",
     "inversify-vanillajs-helpers": "2.0.0",
-    "lodash": "4.17.11",
+    "lodash": "4.17.21",
     "reflect-metadata": "0.1.13",
     "vue": "2.6.10",
     "vue-property-decorator": "8.1.1",

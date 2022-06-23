@@ -43,7 +43,7 @@
     "chai-as-promised": "7.1.1",
     "eslint": "5.16.0",
     "flush-promises": "1.0.2",
-    "jsdom": "15.1.1",
+    "jsdom": "16.5.0",
     "lint-staged": "8.2.1",
     "lolex": "4.1.0",
     "node-sass": "4.12.0",
